@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#ffffff">
+<title>斩词 · 德语</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700&family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f4f0;
+  --bg2:#eceae4;
+  --white:#ffffff;
+  --surface:#ffffff;
+  --border:#e8e5de;
+  --text:#1a1a1a;
+  --text2:#5a5a5a;
+  --text3:#9a9a9a;
+  --primary:#2d6a4f;
+  --primary-lt:#e8f5ef;
+  --primary-dim:rgba(45,106,79,0.12);
+  --accent:#ff6b35;
+  --accent-lt:#fff0eb;
+  --accent-dim:rgba(255,107,53,0.12);
+  --gold:#f4a623;
+  --gold-lt:#fff8e7;
+  --blue:#3a86ff;
+  --blue-lt:#eef3ff;
+  --red:#e63946;
+  --red-lt:#ffeef0;
+  --green:#2d6a4f;
+  --green-lt:#e8f5ef;
+  --purple:#7b2d8b;
+  --purple-lt:#f5eef8;
+  --r:16px;
+  --shadow:0 2px 12px rgba(0,0,0,0.08);
+  --shadow-lg:0 8px 32px rgba(0,0,0,0.12);
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto Sans SC','DM Sans',sans-serif;overflow:hidden;-webkit-text-size-adjust:100%;}
+
+#app{height:100%;display:flex;flex-direction:column;padding-top:var(--safe-top);}
+
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden;}
+.screen.active{display:flex;}
+
+/* ===== SPLASH ===== */
+#screen-splash{background:var(--primary);align-items:center;justify-content:center;gap:16px;}
+.splash-logo{font-family:'Outfit',sans-serif;font-size:48px;font-weight:800;color:#fff;letter-spacing:-2px;}
+.splash-logo span{color:var(--gold);}
+.splash-sub{color:rgba(255,255,255,0.7);font-size:14px;}
+.splash-bar{width:120px;height:3px;background:rgba(255,255,255,0.2);border-radius:2px;overflow:hidden;margin-top:8px;}
+.splash-bar-fill{height:100%;background:#fff;border-radius:2px;animation:splashLoad 1.5s ease forwards;}
+@keyframes splashLoad{from{width:0}to{width:100%}}
+
+/* ===== HOME ===== */
+#screen-home{overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--bg);}
+
+.home-top{
+  background:var(--primary);
+  padding:16px 20px 28px;
+  position:relative;overflow:hidden;
+}
+.home-top::after{
+  content:'';position:absolute;bottom:-40px;left:0;right:0;
+  height:60px;background:var(--bg);border-radius:50% 50% 0 0;
+}
+.home-greeting{color:rgba(255,255,255,0.75);font-size:13px;margin-bottom:2px;}
+.home-title{color:#fff;font-size:20px;font-weight:700;font-family:'Outfit',sans-serif;}
+
+/* Daily goal ring */
+.daily-card{
+  background:var(--white);border-radius:20px;
+  margin:0 16px;margin-top:-16px;
+  padding:20px;
+  box-shadow:var(--shadow-lg);
+  position:relative;z-index:2;
+  display:flex;align-items:center;gap:20px;
+}
+.ring-wrap{position:relative;width:80px;height:80px;flex-shrink:0;}
+.ring-svg{transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:#f0f0f0;stroke-width:6;}
+.ring-fill{fill:none;stroke:var(--primary);stroke-width:6;stroke-linecap:round;
+  stroke-dasharray:220;stroke-dashoffset:220;
+  transition:stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1);}
+.ring-center{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.ring-num{font-size:22px;font-weight:800;color:var(--primary);font-family:'Outfit',sans-serif;line-height:1;}
+.ring-lbl{font-size:10px;color:var(--text3);}
+.daily-info{flex:1;}
+.daily-info h3{font-size:16px;font-weight:700;margin-bottom:4px;}
+.daily-info p{font-size:12px;color:var(--text2);line-height:1.5;}
+.start-btn{
+  background:var(--primary);color:#fff;
+  border:none;border-radius:12px;
+  padding:10px 18px;font-size:14px;font-weight:700;
+  font-family:'Outfit',sans-serif;
+  cursor:pointer;white-space:nowrap;
+  transition:all 0.15s;
+  -webkit-user-select:none;user-select:none;
+  touch-action:manipulation;
+}
+.start-btn:active{transform:scale(0.95);background:#1e4d38;}
+
+/* Streak row */
+.streak-row{
+  display:flex;gap:10px;padding:16px 16px 0;overflow-x:auto;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
+.streak-row::-webkit-scrollbar{display:none;}
+.streak-item{
+  flex-shrink:0;background:var(--white);border-radius:14px;
+  padding:12px 14px;display:flex;flex-direction:column;
+  align-items:center;gap:4px;min-width:70px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+}
+.streak-icon{font-size:22px;}
+.streak-val{font-size:18px;font-weight:800;font-family:'Outfit',sans-serif;}
+.streak-lbl{font-size:10px;color:var(--text3);}
+.streak-fire .streak-val{color:var(--accent);}
+.streak-star .streak-val{color:var(--gold);}
+.streak-book .streak-val{color:var(--blue);}
+.streak-check .streak-val{color:var(--primary);}
+
+/* Section */
+.section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 16px 10px;
+}
+.section-title{font-size:16px;font-weight:700;}
+.section-more{font-size:13px;color:var(--primary);font-weight:600;}
+
+/* Today plan */
+.plan-card{
+  margin:0 16px;background:var(--white);
+  border-radius:16px;overflow:hidden;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+}
+.plan-item{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background 0.15s;
+  touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+.plan-item:last-child{border-bottom:none;}
+.plan-item:active{background:var(--bg);}
+.plan-icon{
+  width:40px;height:40px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.plan-info{flex:1;}
+.plan-name{font-size:14px;font-weight:600;}
+.plan-meta{font-size:12px;color:var(--text3);margin-top:2px;}
+.plan-badge{
+  padding:4px 10px;border-radius:20px;
+  font-size:11px;font-weight:700;white-space:nowrap;
+}
+.badge-new{background:var(--accent-lt);color:var(--accent);}
+.badge-review{background:var(--blue-lt);color:var(--blue);}
+.badge-done{background:var(--primary-lt);color:var(--primary);}
+
+/* Achievement row */
+.achv-row{
+  display:flex;gap:10px;padding:0 16px;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+  padding-bottom:20px;
+}
+.achv-row::-webkit-scrollbar{display:none;}
+.achv-card{
+  flex-shrink:0;width:90px;
+  background:var(--white);border-radius:14px;
+  padding:12px 8px;display:flex;flex-direction:column;
+  align-items:center;gap:6px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+}
+.achv-icon{font-size:28px;}
+.achv-name{font-size:10px;color:var(--text2);text-align:center;line-height:1.3;}
+.achv-card.locked{opacity:0.35;}
+
+/* ===== STUDY SCREEN ===== */
+#screen-study{background:var(--bg);}
+
+.study-nav{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;background:var(--white);
+  border-bottom:1px solid var(--border);
+}
+.icon-btn{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--bg);border:none;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;cursor:pointer;
+  transition:all 0.15s;flex-shrink:0;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation;
+}
+.icon-btn:active{background:var(--border);transform:scale(0.93);}
+
+.study-progress-wrap{flex:1;}
+.study-progress-track{
+  height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;
+}
+.study-progress-fill{
+  height:100%;border-radius:3px;
+  background:linear-gradient(90deg,var(--primary),#52b788);
+  transition:width 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+.study-progress-label{
+  display:flex;justify-content:space-between;
+  font-size:10px;color:var(--text3);margin-top:4px;
+}
+
+.mode-tabs{
+  display:flex;gap:0;background:var(--bg2);
+  margin:12px 16px;border-radius:12px;padding:3px;
+}
+.mode-tab{
+  flex:1;padding:8px;text-align:center;
+  font-size:12px;font-weight:600;color:var(--text3);
+  border-radius:9px;cursor:pointer;transition:all 0.2s;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation;
+}
+.mode-tab.active{background:var(--white);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.1);}
+
+/* ===== FLASHCARD MODE ===== */
+#mode-flashcard{flex:1;display:flex;flex-direction:column;padding:0 16px 16px;gap:12px;overflow:hidden;}
+#mode-flashcard.hidden{display:none;}
+
+.word-image-card{
+  background:var(--white);border-radius:20px;
+  padding:24px 20px 20px;flex-shrink:0;
+  box-shadow:var(--shadow);
+  display:flex;flex-direction:column;align-items:center;
+  position:relative;cursor:pointer;
+  transition:transform 0.15s;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation;
+}
+.word-image-card:active{transform:scale(0.99);}
+
+.word-scene-img{
+  font-size:72px;margin-bottom:12px;
+  line-height:1;
+  animation:imgFloat 3s ease-in-out infinite;
+}
+@keyframes imgFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+.article-row{display:flex;gap:6px;align-items:center;margin-bottom:8px;}
+.art-tag{
+  padding:3px 10px;border-radius:20px;
+  font-size:11px;font-weight:700;letter-spacing:0.04em;
+}
+.art-der{background:#dbeafe;color:#1d4ed8;}
+.art-die{background:#fce7f3;color:#9d174d;}
+.art-das{background:#fef3c7;color:#92400e;}
+.art-none{background:var(--bg2);color:var(--text3);}
+
+.word-main{
+  font-family:'Outfit',sans-serif;
+  font-size:clamp(32px,8vw,48px);
+  font-weight:800;color:var(--text);
+  letter-spacing:-1px;text-align:center;
+  line-height:1.1;
+}
+.word-phonetic{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;color:var(--text3);
+  margin-top:6px;text-align:center;
+}
+.word-plural{font-size:12px;color:var(--text3);margin-top:3px;}
+
+/* Flip reveal */
+.flip-reveal{
+  background:var(--white);border-radius:20px;
+  padding:20px;box-shadow:var(--shadow);
+  flex-shrink:0;
+  transform:translateY(20px);opacity:0;
+  transition:all 0.35s cubic-bezier(0.4,0,0.2,1);
+  pointer-events:none;
+}
+.flip-reveal.show{transform:translateY(0);opacity:1;pointer-events:auto;}
+
+.cn-big{
+  font-family:'Noto Serif SC',serif;
+  font-size:clamp(24px,6vw,32px);
+  font-weight:700;color:var(--text);
+  margin-bottom:6px;
+}
+.cn-alt-small{font-size:13px;color:var(--text2);margin-bottom:12px;}
+.ex-de{
+  font-size:13px;color:var(--text2);
+  font-style:italic;line-height:1.7;margin-bottom:3px;
+}
+.ex-de mark{background:none;color:var(--primary);font-style:normal;font-weight:700;}
+.ex-cn{font-size:12px;color:var(--text3);}
+
+.flip-hint{
+  text-align:center;font-size:12px;color:var(--text3);
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  margin-top:8px;
+}
+
+.rate-buttons{display:flex;gap:10px;flex-shrink:0;}
+.rate-btn{
+  flex:1;padding:14px 8px;border-radius:14px;border:none;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:pointer;transition:all 0.15s;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation;
+}
+.rate-btn:active{transform:scale(0.95);}
+.rb-again{background:var(--red-lt);}
+.rb-again .rb-icon{font-size:22px;}
+.rb-again .rb-lbl{font-size:11px;color:var(--red);font-weight:600;}
+.rb-hard{background:var(--gold-lt);}
+.rb-hard .rb-icon{font-size:22px;}
+.rb-hard .rb-lbl{font-size:11px;color:var(--gold);font-weight:600;}
+.rb-good{background:var(--green-lt);}
+.rb-good .rb-icon{font-size:22px;}
+.rb-good .rb-lbl{font-size:11px;color:var(--green);font-weight:600;}
+
+/* ===== QUIZ MODE ===== */
+#mode-quiz{flex:1;display:none;flex-direction:column;padding:0 16px 16px;gap:14px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+#mode-quiz.show{display:flex;}
+
+.quiz-word-card{
+  background:var(--white);border-radius:20px;
+  padding:28px 20px;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  flex-shrink:0;
+}
+.quiz-scene{font-size:56px;margin-bottom:4px;}
+.quiz-word{
+  font-family:'Outfit',sans-serif;
+  font-size:clamp(28px,7vw,40px);
+  font-weight:800;text-align:center;letter-spacing:-1px;
+}
+.quiz-phonetic{font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.quiz-prompt{font-size:13px;color:var(--text3);margin-top:4px;}
+
+.quiz-options{display:flex;flex-direction:column;gap:10px;flex-shrink:0;}
+.quiz-option{
+  background:var(--white);border:2px solid var(--border);
+  border-radius:14px;padding:15px 18px;
+  font-size:15px;font-weight:500;color:var(--text);
+  cursor:pointer;transition:all 0.15s;text-align:left;
+  display:flex;align-items:center;gap:12px;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation;
+}
+.quiz-option:active:not(.correct):not(.wrong){background:var(--bg);}
+.quiz-option.correct{
+  background:var(--green-lt);border-color:var(--primary);color:var(--primary);
+}
+.quiz-option.wrong{
+  background:var(--red-lt);border-color:var(--red);color:var(--red);
+}
+.quiz-option .opt-letter{
+  width:26px;height:26px;border-radius:8px;background:var(--bg2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;flex-shrink:0;
+  transition:all 0.15s;
+}
+.quiz-option.correct .opt-letter{background:var(--primary);color:#fff;}
+.quiz-option.wrong .opt-letter{background:var(--red);color:#fff;}
+
+.quiz-feedback{
+  background:var(--white);border-radius:16px;padding:16px;
+  box-shadow:var(--shadow);flex-shrink:0;
+  transform:translateY(20px);opacity:0;
+  transition:all 0.3s;pointer-events:none;
+}
+.quiz-feedback.show{transform:translateY(0);opacity:1;pointer-events:auto;}
+.qf-correct-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.qf-icon{font-size:22px;}
+.qf-msg{font-size:15px;font-weight:700;}
+.qf-ex{font-size:13px;color:var(--text2);line-height:1.6;font-style:italic;}
+.qf-ex mark{background:none;color:var(--primary);font-style:normal;font-weight:700;}
+.next-btn{
+  width:100%;padding:14px;border:none;border-radius:12px;
+  background:var(--primary);color:#fff;
+  font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;
+  cursor:pointer;margin-top:12px;transition:all 0.15s;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation;
+}
+.next-btn:active{background:#1e4d38;transform:scale(0.98);}
+
+/* Combo counter */
+.combo-pop{
+  position:fixed;top:120px;left:50%;
+  transform:translateX(-50%) scale(0);
+  background:var(--accent);color:#fff;
+  padding:8px 20px;border-radius:20px;
+  font-size:14px;font-weight:800;font-family:'Outfit',sans-serif;
+  z-index:100;transition:all 0.3s;pointer-events:none;
+  box-shadow:0 4px 16px rgba(255,107,53,0.4);
+}
+.combo-pop.show{transform:translateX(-50%) scale(1);}
+
+/* ===== COMPLETE OVERLAY ===== */
+.complete-overlay{
+  display:none;position:absolute;inset:0;
+  background:var(--bg);z-index:50;
+  flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;gap:16px;
+}
+.complete-overlay.show{display:flex;}
+.co-emoji{font-size:72px;animation:bounce 0.6s ease;}
+@keyframes bounce{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+.co-title{font-family:'Outfit',sans-serif;font-size:26px;font-weight:800;color:var(--text);text-align:center;}
+.co-sub{font-size:14px;color:var(--text2);text-align:center;line-height:1.6;}
+.co-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;}
+.co-stat{background:var(--white);border-radius:14px;padding:14px 8px;text-align:center;box-shadow:var(--shadow);}
+.co-val{font-size:26px;font-weight:800;font-family:'Outfit',sans-serif;}
+.co-lbl{font-size:10px;color:var(--text3);margin-top:2px;}
+.co-xp{
+  background:linear-gradient(135deg,var(--primary),#52b788);
+  color:#fff;border-radius:14px;padding:14px 24px;
+  font-size:15px;font-weight:700;text-align:center;width:100%;
+}
+.co-xp span{font-size:24px;font-weight:800;font-family:'Outfit',sans-serif;}
+.co-actions{display:flex;gap:10px;width:100%;}
+.co-btn{
+  flex:1;padding:14px;border-radius:14px;border:none;
+  font-size:14px;font-weight:700;font-family:'Outfit',sans-serif;
+  cursor:pointer;transition:all 0.15s;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation;
+}
+.co-btn:active{transform:scale(0.97);}
+.co-btn-primary{background:var(--primary);color:#fff;}
+.co-btn-secondary{background:var(--bg2);color:var(--text);}
+
+/* ===== LIST SCREEN ===== */
+#screen-list{background:var(--bg);}
+.list-header{
+  background:var(--white);padding:14px 16px;
+  border-bottom:1px solid var(--border);
+  display:flex;flex-direction:column;gap:10px;
+}
+.list-header-top{display:flex;align-items:center;gap:10px;}
+.list-title{font-size:17px;font-weight:700;flex:1;}
+.search-box{
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:12px;padding:9px 14px 9px 36px;
+  font-size:14px;font-family:'Noto Sans SC',sans-serif;
+  color:var(--text);outline:none;width:100%;
+  -webkit-appearance:none;transition:border-color 0.2s;
+}
+.search-box:focus{border-color:var(--primary);}
+.search-box::placeholder{color:var(--text3);}
+.search-wrap{position:relative;}
+.search-ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text3);}
+.chip-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.chip-row::-webkit-scrollbar{display:none;}
+.chip{
+  padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;
+  white-space:nowrap;background:var(--bg2);color:var(--text2);
+  border:1.5px solid transparent;cursor:pointer;transition:all 0.15s;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation;
+}
+.chip.active{background:var(--primary-lt);color:var(--primary);border-color:var(--primary);}
+.chip:active{transform:scale(0.95);}
+
+.word-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.wl-group-header{
+  padding:10px 16px 6px;
+  font-size:11px;font-weight:700;color:var(--text3);
+  letter-spacing:0.08em;text-transform:uppercase;
+  background:var(--bg);
+  position:sticky;top:0;z-index:2;
+}
+.wl-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;background:var(--white);
+  border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background 0.15s;
+  touch-action:manipulation;-webkit-user-select:none;user-select:none;
+}
+.wl-item:active{background:var(--bg);}
+.wl-scene{font-size:26px;width:36px;text-align:center;flex-shrink:0;}
+.wl-info{flex:1;min-width:0;}
+.wl-de{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;color:var(--text);}
+.wl-cn{font-size:12px;color:var(--text2);margin-top:2px;}
+.wl-type{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.wl-stars{display:flex;gap:3px;}
+.wl-star{font-size:12px;}
+
+/* ===== STATS SCREEN ===== */
+#screen-stats{overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--bg);}
+.stats-top{background:var(--primary);padding:20px 16px 40px;position:relative;}
+.stats-top::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:30px;background:var(--bg);border-radius:50% 50% 0 0;}
+.stats-top-title{font-size:18px;font-weight:700;color:#fff;font-family:'Outfit',sans-serif;}
+.stats-top-sub{font-size:13px;color:rgba(255,255,255,0.7);margin-top:2px;}
+
+.stats-body{padding:0 16px 24px;}
+.stats-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.stat-card{
+  background:var(--white);border-radius:16px;
+  padding:16px;box-shadow:var(--shadow);
+}
+.stat-card-val{font-size:32px;font-weight:800;font-family:'Outfit',sans-serif;color:var(--primary);}
+.stat-card-lbl{font-size:11px;color:var(--text3);margin-top:4px;}
+.stat-card-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+
+.stats-section{background:var(--white);border-radius:16px;padding:16px;box-shadow:var(--shadow);margin-bottom:12px;}
+.ss-title{font-size:14px;font-weight:700;margin-bottom:14px;}
+
+/* Heatmap */
+.hm-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.hm-cell{aspect-ratio:1;border-radius:3px;background:var(--bg2);}
+.hm-cell.h1{background:rgba(45,106,79,0.2);}
+.hm-cell.h2{background:rgba(45,106,79,0.45);}
+.hm-cell.h3{background:rgba(45,106,79,0.7);}
+.hm-cell.h4{background:var(--primary);}
+.hm-legend{display:flex;align-items:center;gap:5px;margin-top:8px;font-size:10px;color:var(--text3);}
+.hm-legend .hm-cell{width:10px;height:10px;flex-shrink:0;border-radius:2px;}
+
+/* Progress bars */
+.prog-row{margin-bottom:12px;}
+.prog-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px;}
+.prog-track{height:8px;background:var(--bg2);border-radius:4px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:4px;background:var(--primary);transition:width 1s ease;}
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav{
+  display:flex;background:var(--white);
+  border-top:1px solid var(--border);
+  padding:6px 0 calc(6px + env(safe-area-inset-bottom,0px));
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;gap:3px;padding:8px 4px;
+  cursor:pointer;transition:all 0.15s;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation;
+}
+.nav-item:active{transform:scale(0.88);}
+.nav-ico{font-size:22px;position:relative;}
+.nav-ico .badge{
+  position:absolute;top:-3px;right:-6px;
+  background:var(--accent);color:#fff;
+  font-size:9px;font-weight:700;
+  padding:1px 4px;border-radius:6px;
+  font-family:'Outfit',sans-serif;
+}
+.nav-lbl{font-size:10px;color:var(--text3);font-weight:600;transition:color 0.15s;}
+.nav-item.active .nav-lbl{color:var(--primary);}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--primary);opacity:0;transition:opacity 0.15s;}
+.nav-item.active .nav-dot{opacity:1;}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:calc(72px + env(safe-area-inset-bottom,0px));
+  left:50%;transform:translateX(-50%) translateY(8px);
+  background:rgba(26,26,26,0.9);color:#fff;
+  padding:10px 20px;border-radius:20px;font-size:13px;
+  opacity:0;transition:all 0.25s;z-index:200;pointer-events:none;
+  white-space:nowrap;backdrop-filter:blur(10px);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* XP float */
+.xp-float{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(0);
+  background:var(--primary);color:#fff;
+  padding:10px 24px;border-radius:20px;
+  font-size:18px;font-weight:800;font-family:'Outfit',sans-serif;
+  z-index:300;pointer-events:none;
+  transition:all 0.2s;
+}
+.xp-float.show{transform:translate(-50%,-60%) scale(1);}
+.xp-float.hide{transform:translate(-50%,-80%) scale(0.8);opacity:0;}
+
+@keyframes cardSlideIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.word-image-card,.quiz-word-card{animation:cardSlideIn 0.3s ease;}
+
+@media(min-width:480px){
+  .daily-card{margin:0 24px;margin-top:-16px;}
+  .section-header,.plan-card,.streak-row,.achv-row,.stats-cards,.stats-section{padding-left:24px;padding-right:24px;}
+  .plan-card{margin-left:24px;margin-right:24px;}
+  .achv-row{padding-left:24px;}
+  .streak-row{padding-left:24px;}
+}
+@media(min-width:768px){
+  #mode-flashcard,#mode-quiz{max-width:480px;margin:0 auto;width:100%;}
+  .daily-card{max-width:700px;margin-left:auto;margin-right:auto;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- SPLASH -->
+<div id="screen-splash" class="screen active">
+  <div class="splash-logo">斩<span>词</span></div>
+  <div class="splash-sub">🇩🇪 大学德语 · 高效背词</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
+<!-- HOME -->
+<div id="screen-home" class="screen">
+  <div class="home-top">
+    <div class="home-greeting" id="home-greeting">早上好 👋</div>
+    <div class="home-title">今天背点德语吧</div>
+  </div>
+
+  <!-- Daily Ring -->
+  <div class="daily-card">
+    <div class="ring-wrap">
+      <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80">
+        <circle class="ring-bg" cx="40" cy="40" r="35"/>
+        <circle class="ring-fill" id="ring-fill" cx="40" cy="40" r="35"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-num" id="ring-num">0</div>
+        <div class="ring-lbl">今日目标</div>
+      </div>
+    </div>
+    <div class="daily-info">
+      <h3 id="daily-h3">开始今日学习</h3>
+      <p id="daily-p">每日目标 <strong>20词</strong> · 已学 <strong id="daily-done">0</strong> 词</p>
+    </div>
+    <button class="start-btn" id="start-today-btn" onclick="startTodayPlan()">开始</button>
+  </div>
+
+  <!-- Stats row -->
+  <div class="streak-row">
+    <div class="streak-item streak-fire"><div class="streak-icon">🔥</div><div class="streak-val" id="s-streak">0</div><div class="streak-lbl">连续天</div></div>
+    <div class="streak-item streak-star"><div class="streak-icon">⭐</div><div class="streak-val" id="s-xp">0</div><div class="streak-lbl">经验值</div></div>
+    <div class="streak-item streak-book"><div class="streak-icon">📖</div><div class="streak-val" id="s-total">0</div><div class="streak-lbl">总词汇</div></div>
+    <div class="streak-item streak-check"><div class="streak-icon">✅</div><div class="streak-val" id="s-mastered">0</div><div class="streak-lbl">已掌握</div></div>
+  </div>
+
+  <!-- Today Plan -->
+  <div class="section-header">
+    <div class="section-title">📋 今日计划</div>
+  </div>
+  <div class="plan-card" id="plan-list"></div>
+
+  <!-- Achievements -->
+  <div class="section-header">
+    <div class="section-title">🏆 成就徽章</div>
+  </div>
+  <div class="achv-row" id="achv-row"></div>
+</div>
+
+<!-- STUDY -->
+<div id="screen-study" class="screen" style="position:relative;">
+  <div class="study-nav">
+    <div class="icon-btn" onclick="exitStudy()">✕</div>
+    <div class="study-progress-wrap">
+      <div class="study-progress-track">
+        <div class="study-progress-fill" id="study-prog" style="width:0%"></div>
+      </div>
+      <div class="study-progress-label">
+        <span id="prog-left">0/0</span>
+        <span id="prog-combo" style="color:var(--accent);font-weight:700"></span>
+        <span id="prog-xp" style="color:var(--primary);font-weight:700">+0XP</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mode-tabs">
+    <div class="mode-tab active" id="tab-flash" onclick="switchMode('flash')">🃏 闪卡</div>
+    <div class="mode-tab" id="tab-quiz" onclick="switchMode('quiz')">🧠 测验</div>
+  </div>
+
+  <!-- FLASHCARD MODE -->
+  <div id="mode-flashcard">
+    <div class="word-image-card" id="fc-card" onclick="fcFlip()">
+      <div class="word-scene-img" id="fc-scene">🏫</div>
+      <div class="article-row">
+        <div class="art-tag" id="fc-art">das</div>
+        <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace" id="fc-type">名词</div>
+      </div>
+      <div class="word-main" id="fc-word">Universität</div>
+      <div class="word-phonetic" id="fc-phonetic">[univerziˈtɛːt]</div>
+      <div class="word-plural" id="fc-plural"></div>
+      <div class="flip-hint" id="fc-hint"><span>👆</span><span>点击查看释义</span></div>
+    </div>
+
+    <div class="flip-reveal" id="fc-reveal">
+      <div class="cn-big" id="fc-cn">大学</div>
+      <div class="cn-alt-small" id="fc-alt"></div>
+      <div class="ex-de" id="fc-ex-de"></div>
+      <div class="ex-cn" id="fc-ex-cn"></div>
+    </div>
+
+    <div class="rate-buttons" id="fc-rates" style="opacity:0;pointer-events:none;transition:opacity 0.3s;">
+      <button class="rate-btn rb-again" onclick="fcRate('again')"><div class="rb-icon">😵</div><div class="rb-lbl">再来</div></button>
+      <button class="rate-btn rb-hard" onclick="fcRate('hard')"><div class="rb-icon">🤔</div><div class="rb-lbl">模糊</div></button>
+      <button class="rate-btn rb-good" onclick="fcRate('good')"><div class="rb-icon">🌟</div><div class="rb-lbl">记住了</div></button>
+    </div>
+  </div>
+
+  <!-- QUIZ MODE -->
+  <div id="mode-quiz">
+    <div class="quiz-word-card">
+      <div class="quiz-scene" id="qz-scene">🏫</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="art-tag" id="qz-art">die</div>
+      </div>
+      <div class="quiz-word" id="qz-word">Bibliothek</div>
+      <div class="quiz-phonetic" id="qz-phonetic">[bibliˈoːtɛk]</div>
+      <div class="quiz-prompt">选出正确的中文释义</div>
+    </div>
+    <div class="quiz-options" id="qz-options"></div>
+    <div class="quiz-feedback" id="qz-feedback">
+      <div class="qf-correct-row">
+        <div class="qf-icon" id="qf-icon">✅</div>
+        <div class="qf-msg" id="qf-msg">回答正确！</div>
+      </div>
+      <div class="qf-ex" id="qf-ex"></div>
+      <button class="next-btn" onclick="qzNext()">继续 →</button>
+    </div>
+  </div>
+
+  <!-- Complete overlay -->
+  <div class="complete-overlay" id="complete-overlay">
+    <div class="co-emoji" id="co-emoji">🎊</div>
+    <div class="co-title" id="co-title">今日目标完成！</div>
+    <div class="co-sub" id="co-sub">太棒了，继续保持！</div>
+    <div class="co-stats">
+      <div class="co-stat"><div class="co-val" id="co-v1" style="color:var(--primary)">0</div><div class="co-lbl">✅ 掌握</div></div>
+      <div class="co-stat"><div class="co-val" id="co-v2" style="color:var(--gold)">0</div><div class="co-lbl">🎯 正确率</div></div>
+      <div class="co-stat"><div class="co-val" id="co-v3" style="color:var(--accent)">0</div><div class="co-lbl">🔥 连击</div></div>
+    </div>
+    <div class="co-xp">🌟 获得经验值 +<span id="co-xp-num">0</span> XP</div>
+    <div class="co-actions">
+      <button class="co-btn co-btn-secondary" onclick="exitStudy()">返回主页</button>
+      <button class="co-btn co-btn-primary" onclick="restartStudy()">再练一遍</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIST -->
+<div id="screen-list" class="screen">
+  <div class="list-header">
+    <div class="list-header-top">
+      <div class="list-title">📖 词汇库</div>
+      <div style="font-size:12px;color:var(--text3)" id="list-count">共 0 词</div>
+    </div>
+    <div class="search-wrap">
+      <span class="search-ico">🔍</span>
+      <input class="search-box" id="search-in" type="text" placeholder="搜索单词或释义…"
+        oninput="renderList()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <div class="chip-row" id="chip-row">
+      <div class="chip active" data-f="all" onclick="setChip(this,'all')">全部</div>
+      <div class="chip" data-f="y1" onclick="setChip(this,'y1')">一年级</div>
+      <div class="chip" data-f="y2" onclick="setChip(this,'y2')">二年级</div>
+      <div class="chip" data-f="y3" onclick="setChip(this,'y3')">三年级</div>
+      <div class="chip" data-f="y4" onclick="setChip(this,'y4')">四年级</div>
+      <div class="chip" data-f="mastered" onclick="setChip(this,'mastered')">✅ 已掌握</div>
+      <div class="chip" data-f="new" onclick="setChip(this,'new')">🆕 未学习</div>
+      <div class="chip" data-f="n" onclick="setChip(this,'n')">名词</div>
+      <div class="chip" data-f="v" onclick="setChip(this,'v')">动词</div>
+      <div class="chip" data-f="adj" onclick="setChip(this,'adj')">形容词</div>
+    </div>
+  </div>
+  <div class="word-list" id="word-list-el"></div>
+</div>
+
+<!-- STATS -->
+<div id="screen-stats" class="screen">
+  <div class="stats-top">
+    <div class="stats-top-title">📊 我的学习</div>
+    <div class="stats-top-sub">累计学习记录</div>
+  </div>
+  <div class="stats-body">
+    <div class="stats-cards">
+      <div class="stat-card"><div class="stat-card-val" id="sc-mastered">0</div><div class="stat-card-lbl">已掌握单词</div><div class="stat-card-sub" id="sc-mastered-sub">共 240 词</div></div>
+      <div class="stat-card"><div class="stat-card-val" id="sc-xp" style="color:var(--gold)">0</div><div class="stat-card-lbl">经验值 XP</div><div class="stat-card-sub" id="sc-xp-sub">Lv.1 学习者</div></div>
+      <div class="stat-card"><div class="stat-card-val" id="sc-streak" style="color:var(--accent)">0</div><div class="stat-card-lbl">连续打卡</div><div class="stat-card-sub">天</div></div>
+      <div class="stat-card"><div class="stat-card-val" id="sc-today" style="color:var(--blue)">0</div><div class="stat-card-lbl">今日已学</div><div class="stat-card-sub">目标 20 词</div></div>
+    </div>
+
+    <div class="stats-section">
+      <div class="ss-title">📅 最近 28 天打卡</div>
+      <div class="hm-grid" id="hm-grid"></div>
+      <div class="hm-legend"><span>少</span><div class="hm-cell"></div><div class="hm-cell h1"></div><div class="hm-cell h2"></div><div class="hm-cell h3"></div><div class="hm-cell h4"></div><span>多</span></div>
+    </div>
+
+    <div class="stats-section">
+      <div class="ss-title">📚 年级掌握进度</div>
+      <div id="yr-prog"></div>
+    </div>
+
+    <div class="stats-section">
+      <div class="ss-title">🏆 成就</div>
+      <div id="stats-achv" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav" id="bottom-nav">
+  <div class="nav-item active" id="nav-home" onclick="showScreen('home')">
+    <div class="nav-ico">🏠</div><div class="nav-lbl">主页</div><div class="nav-dot"></div>
+  </div>
+  <div class="nav-item" id="nav-list" onclick="showScreen('list')">
+    <div class="nav-ico">📖</div><div class="nav-lbl">词汇</div><div class="nav-dot"></div>
+  </div>
+  <div class="nav-item" id="nav-stats" onclick="showScreen('stats')">
+    <div class="nav-ico">📊</div><div class="nav-lbl">统计</div><div class="nav-dot"></div>
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="xp-float" id="xp-float">+10 XP</div>
+<div class="combo-pop" id="combo-pop">🔥 连击 x3</div>
+
+<script>
+// ============================================================
+// VOCAB DATA — 1-4 Year University German (240 words)
+// ============================================================
+const DECKS=[
+  {id:'y1d1',year:1,icon:'🎉',name:'问候与介绍',color:'#2d6a4f',words:[
+    {de:'Hallo',cn:'你好',alt:'',pos:'interj',type:'感叹词',phonetic:'[ˈhalo]',article:'',plural:'',scene:'👋',ex_de:'<mark>Hallo</mark>, wie geht es dir?',ex_cn:'你好，你怎么样？'},
+    {de:'Guten Morgen',cn:'早上好',alt:'',pos:'phrase',type:'问候语',phonetic:'[ˈɡuːtn̩ ˈmɔrɡn̩]',article:'',plural:'',scene:'🌅',ex_de:'<mark>Guten Morgen</mark>, Herr Schmidt!',ex_cn:'早上好，施密特先生！'},
+    {de:'Guten Tag',cn:'你好（白天）',alt:'日安',pos:'phrase',type:'问候语',phonetic:'[ˈɡuːtn̩ taːk]',article:'',plural:'',scene:'☀️',ex_de:'<mark>Guten Tag</mark>, wie kann ich helfen?',ex_cn:'你好，我能帮什么忙？'},
+    {de:'Auf Wiedersehen',cn:'再见',alt:'',pos:'phrase',type:'问候语',phonetic:'[aʊ̯f ˈviːdɐˌzeːən]',article:'',plural:'',scene:'👋',ex_de:'<mark>Auf Wiedersehen</mark>! Bis morgen.',ex_cn:'再见！明天见。'},
+    {de:'danke',cn:'谢谢',alt:'感谢',pos:'adv',type:'副词',phonetic:'[ˈdaŋkə]',article:'',plural:'',scene:'🙏',ex_de:'Vielen <mark>Dank</mark> für Ihre Hilfe.',ex_cn:'非常感谢您的帮助。'},
+    {de:'bitte',cn:'请；不客气',alt:'',pos:'adv',type:'副词',phonetic:'[ˈbɪtə]',article:'',plural:'',scene:'🤲',ex_de:'Kommen Sie herein, <mark>bitte</mark>!',ex_cn:'请进！'},
+    {de:'Entschuldigung',cn:'对不起；打扰',alt:'抱歉',pos:'interj',type:'感叹词',phonetic:'[ɛntˈʃʊldɪɡʊŋ]',article:'',plural:'',scene:'😅',ex_de:'<mark>Entschuldigung</mark>, wo ist der Bahnhof?',ex_cn:'请问，车站在哪里？'},
+    {de:'Name',cn:'名字',alt:'姓名',pos:'n',type:'名词 (der)',phonetic:'[ˈnaːmə]',article:'der',plural:'Namen',scene:'🪪',ex_de:'Wie ist Ihr <mark>Name</mark>?',ex_cn:'您叫什么名字？'},
+    {de:'heißen',cn:'叫做',alt:'名叫',pos:'v',type:'动词',phonetic:'[ˈhaɪ̯sn̩]',article:'',plural:'',scene:'🏷️',ex_de:'Ich <mark>heiße</mark> Maria.',ex_cn:'我叫玛丽亚。'},
+    {de:'kommen',cn:'来；来自',alt:'',pos:'v',type:'动词',phonetic:'[ˈkɔmən]',article:'',plural:'',scene:'🚶',ex_de:'Ich <mark>komme</mark> aus China.',ex_cn:'我来自中国。'},
+    {de:'wohnen',cn:'居住',alt:'住',pos:'v',type:'动词',phonetic:'[ˈvoːnən]',article:'',plural:'',scene:'🏡',ex_de:'Wo <mark>wohnst</mark> du?',ex_cn:'你住在哪里？'},
+    {de:'sprechen',cn:'说话；会说',alt:'讲',pos:'v',type:'动词',phonetic:'[ˈʃpʁɛçn̩]',article:'',plural:'',scene:'💬',ex_de:'<mark>Sprechen</mark> Sie Deutsch?',ex_cn:'您会说德语吗？'},
+    {de:'Sprache',cn:'语言',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈʃpʁaːxə]',article:'die',plural:'Sprachen',scene:'🗣️',ex_de:'Welche <mark>Sprache</mark> lernst du?',ex_cn:'你在学哪门语言？'},
+    {de:'Familie',cn:'家庭',alt:'',pos:'n',type:'名词 (die)',phonetic:'[faˈmiːliə]',article:'die',plural:'Familien',scene:'👨‍👩‍👧‍👦',ex_de:'Ich liebe meine <mark>Familie</mark>.',ex_cn:'我爱我的家人。'},
+    {de:'Freund',cn:'朋友；男友',alt:'',pos:'n',type:'名词 (der)',phonetic:'[fʁɔɪ̯nt]',article:'der',plural:'Freunde',scene:'🤝',ex_de:'Das ist mein bester <mark>Freund</mark>.',ex_cn:'这是我最好的朋友。'},
+    {de:'verstehen',cn:'理解；听懂',alt:'明白',pos:'v',type:'动词',phonetic:'[fɛɐ̯ˈʃteːən]',article:'',plural:'',scene:'💡',ex_de:'Ich <mark>verstehe</mark> das nicht.',ex_cn:'我不明白这个。'},
+    {de:'Beruf',cn:'职业',alt:'工作',pos:'n',type:'名词 (der)',phonetic:'[bəˈruːf]',article:'der',plural:'Berufe',scene:'💼',ex_de:'Was ist Ihr <mark>Beruf</mark>?',ex_cn:'您从事什么职业？'},
+    {de:'Alter',cn:'年龄',alt:'岁数',pos:'n',type:'名词 (das)',phonetic:'[ˈaltɐ]',article:'das',plural:'—',scene:'🎂',ex_de:'Was ist Ihr <mark>Alter</mark>?',ex_cn:'您多大年龄？'},
+    {de:'Land',cn:'国家；土地',alt:'',pos:'n',type:'名词 (das)',phonetic:'[lant]',article:'das',plural:'Länder',scene:'🌍',ex_de:'Aus welchem <mark>Land</mark> kommst du?',ex_cn:'你来自哪个国家？'},
+    {de:'Stadt',cn:'城市',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ʃtat]',article:'die',plural:'Städte',scene:'🏙️',ex_de:'Berlin ist eine große <mark>Stadt</mark>.',ex_cn:'柏林是个大城市。'},
+  ]},
+  {id:'y1d2',year:1,icon:'⏰',name:'数字与时间',color:'#3a86ff',words:[
+    {de:'Uhr',cn:'点钟；钟表',alt:'',pos:'n',type:'名词 (die)',phonetic:'[uːɐ̯]',article:'die',plural:'Uhren',scene:'🕐',ex_de:'Es ist drei <mark>Uhr</mark>.',ex_cn:'现在是三点钟。'},
+    {de:'Stunde',cn:'小时',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈʃtʊndə]',article:'die',plural:'Stunden',scene:'⏱️',ex_de:'Das dauert eine <mark>Stunde</mark>.',ex_cn:'这需要一个小时。'},
+    {de:'Minute',cn:'分钟',alt:'',pos:'n',type:'名词 (die)',phonetic:'[miˈnuːtə]',article:'die',plural:'Minuten',scene:'⏱️',ex_de:'Warte zehn <mark>Minuten</mark>!',ex_cn:'等十分钟！'},
+    {de:'heute',cn:'今天',alt:'',pos:'adv',type:'副词',phonetic:'[ˈhɔɪ̯tə]',article:'',plural:'',scene:'📅',ex_de:'<mark>Heute</mark> lerne ich Deutsch.',ex_cn:'今天我学德语。'},
+    {de:'morgen',cn:'明天；早晨',alt:'',pos:'adv',type:'副词',phonetic:'[ˈmɔrɡn̩]',article:'',plural:'',scene:'🌄',ex_de:'Bis <mark>morgen</mark>!',ex_cn:'明天见！'},
+    {de:'gestern',cn:'昨天',alt:'',pos:'adv',type:'副词',phonetic:'[ˈɡɛstɐn]',article:'',plural:'',scene:'📆',ex_de:'<mark>Gestern</mark> war ich krank.',ex_cn:'昨天我生病了。'},
+    {de:'Woche',cn:'星期；周',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈvɔxə]',article:'die',plural:'Wochen',scene:'🗓️',ex_de:'Diese <mark>Woche</mark> habe ich viel zu tun.',ex_cn:'这周我有很多事要做。'},
+    {de:'Monat',cn:'月份',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ˈmoːnat]',article:'der',plural:'Monate',scene:'📆',ex_de:'Im nächsten <mark>Monat</mark> fahre ich nach Berlin.',ex_cn:'下个月我去柏林。'},
+    {de:'Jahr',cn:'年',alt:'',pos:'n',type:'名词 (das)',phonetic:'[jaːɐ̯]',article:'das',plural:'Jahre',scene:'🎆',ex_de:'Dieses <mark>Jahr</mark> beginne ich mein Studium.',ex_cn:'今年我开始我的学业。'},
+    {de:'früh',cn:'早的；早',alt:'',pos:'adj',type:'形容词',phonetic:'[fʁyː]',article:'',plural:'',scene:'🌞',ex_de:'Ich stehe <mark>früh</mark> auf.',ex_cn:'我早起。'},
+    {de:'spät',cn:'晚的；晚',alt:'',pos:'adj',type:'形容词',phonetic:'[ʃpɛːt]',article:'',plural:'',scene:'🌙',ex_de:'Es ist schon sehr <mark>spät</mark>.',ex_cn:'已经很晚了。'},
+    {de:'jetzt',cn:'现在',alt:'此刻',pos:'adv',type:'副词',phonetic:'[jɛtst]',article:'',plural:'',scene:'⚡',ex_de:'Was machst du <mark>jetzt</mark>?',ex_cn:'你现在在做什么？'},
+    {de:'immer',cn:'总是；一直',alt:'',pos:'adv',type:'副词',phonetic:'[ˈɪmɐ]',article:'',plural:'',scene:'♾️',ex_de:'Sie ist <mark>immer</mark> pünktlich.',ex_cn:'她总是准时。'},
+    {de:'manchmal',cn:'有时候',alt:'',pos:'adv',type:'副词',phonetic:'[ˈmançmaːl]',article:'',plural:'',scene:'🔄',ex_de:'<mark>Manchmal</mark> esse ich Pizza.',ex_cn:'我有时候吃披萨。'},
+    {de:'nie',cn:'从不；永远不',alt:'',pos:'adv',type:'副词',phonetic:'[niː]',article:'',plural:'',scene:'🚫',ex_de:'Ich trinke <mark>nie</mark> Alkohol.',ex_cn:'我从不喝酒。'},
+    {de:'Tag',cn:'天；白天',alt:'',pos:'n',type:'名词 (der)',phonetic:'[taːk]',article:'der',plural:'Tage',scene:'☀️',ex_de:'Guten <mark>Tag</mark>!',ex_cn:'你好！'},
+    {de:'Nacht',cn:'夜晚',alt:'',pos:'n',type:'名词 (die)',phonetic:'[naxt]',article:'die',plural:'Nächte',scene:'🌙',ex_de:'Gute <mark>Nacht</mark>!',ex_cn:'晚安！'},
+    {de:'bald',cn:'很快；即将',alt:'',pos:'adv',type:'副词',phonetic:'[balt]',article:'',plural:'',scene:'⏩',ex_de:'Ich komme <mark>bald</mark>.',ex_cn:'我很快来。'},
+    {de:'noch',cn:'还；仍然',alt:'',pos:'adv',type:'副词',phonetic:'[nɔx]',article:'',plural:'',scene:'➕',ex_de:'Hast du <mark>noch</mark> Zeit?',ex_cn:'你还有时间吗？'},
+    {de:'schon',cn:'已经',alt:'',pos:'adv',type:'副词',phonetic:'[ʃoːn]',article:'',plural:'',scene:'✔️',ex_de:'Ich habe <mark>schon</mark> gegessen.',ex_cn:'我已经吃过了。'},
+  ]},
+  {id:'y1d3',year:1,icon:'🏠',name:'家庭与住所',color:'#e63946',words:[
+    {de:'Haus',cn:'房子；住宅',alt:'',pos:'n',type:'名词 (das)',phonetic:'[haʊ̯s]',article:'das',plural:'Häuser',scene:'🏠',ex_de:'Wir wohnen in einem großen <mark>Haus</mark>.',ex_cn:'我们住在一个大房子里。'},
+    {de:'Wohnung',cn:'公寓；住所',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈvoːnʊŋ]',article:'die',plural:'Wohnungen',scene:'🏢',ex_de:'Die <mark>Wohnung</mark> hat drei Zimmer.',ex_cn:'这套公寓有三个房间。'},
+    {de:'Zimmer',cn:'房间',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ˈtsɪmɐ]',article:'das',plural:'Zimmer',scene:'🛋️',ex_de:'Mein <mark>Zimmer</mark> ist klein.',ex_cn:'我的房间很小。'},
+    {de:'Küche',cn:'厨房',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈkʏçə]',article:'die',plural:'Küchen',scene:'🍳',ex_de:'In der <mark>Küche</mark> riecht es gut.',ex_cn:'厨房里闻起来很香。'},
+    {de:'Badezimmer',cn:'浴室',alt:'卫生间',pos:'n',type:'名词 (das)',phonetic:'[ˈbaːdəˌtsɪmɐ]',article:'das',plural:'Badezimmer',scene:'🛁',ex_de:'Das <mark>Badezimmer</mark> ist sauber.',ex_cn:'浴室很干净。'},
+    {de:'Mutter',cn:'母亲；妈妈',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈmʊtɐ]',article:'die',plural:'Mütter',scene:'👩',ex_de:'Meine <mark>Mutter</mark> kocht sehr gut.',ex_cn:'我妈妈做饭很好。'},
+    {de:'Vater',cn:'父亲；爸爸',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ˈfaːtɐ]',article:'der',plural:'Väter',scene:'👨',ex_de:'Mein <mark>Vater</mark> ist Ingenieur.',ex_cn:'我爸爸是工程师。'},
+    {de:'Bruder',cn:'兄弟',alt:'哥哥/弟弟',pos:'n',type:'名词 (der)',phonetic:'[ˈbʁuːdɐ]',article:'der',plural:'Brüder',scene:'👦',ex_de:'Mein <mark>Bruder</mark> ist älter als ich.',ex_cn:'我哥哥比我大。'},
+    {de:'Schwester',cn:'姐妹',alt:'姐姐/妹妹',pos:'n',type:'名词 (die)',phonetic:'[ˈʃvɛstɐ]',article:'die',plural:'Schwestern',scene:'👧',ex_de:'Meine <mark>Schwester</mark> studiert Medizin.',ex_cn:'我姐姐学医。'},
+    {de:'Garten',cn:'花园；庭院',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ˈɡaʁtn̩]',article:'der',plural:'Gärten',scene:'🌻',ex_de:'Im <mark>Garten</mark> wachsen Blumen.',ex_cn:'花园里长着花。'},
+    {de:'groß',cn:'大的；高的',alt:'',pos:'adj',type:'形容词',phonetic:'[ɡʁoːs]',article:'',plural:'',scene:'📐',ex_de:'Das Haus ist sehr <mark>groß</mark>.',ex_cn:'房子很大。'},
+    {de:'klein',cn:'小的；矮的',alt:'',pos:'adj',type:'形容词',phonetic:'[klaɪ̯n]',article:'',plural:'',scene:'🔬',ex_de:'Mein Zimmer ist <mark>klein</mark>.',ex_cn:'我的房间很小。'},
+    {de:'schön',cn:'美丽的；好的',alt:'漂亮',pos:'adj',type:'形容词',phonetic:'[ʃøːn]',article:'',plural:'',scene:'✨',ex_de:'Das Wetter ist <mark>schön</mark>.',ex_cn:'天气很好。'},
+    {de:'neu',cn:'新的',alt:'',pos:'adj',type:'形容词',phonetic:'[nɔɪ̯]',article:'',plural:'',scene:'🆕',ex_de:'Ich habe ein <mark>neues</mark> Handy.',ex_cn:'我有一部新手机。'},
+    {de:'alt',cn:'旧的；年老的',alt:'',pos:'adj',type:'形容词',phonetic:'[alt]',article:'',plural:'',scene:'📜',ex_de:'Das ist ein <mark>altes</mark> Haus.',ex_cn:'这是一座旧房子。'},
+    {de:'Miete',cn:'租金',alt:'房租',pos:'n',type:'名词 (die)',phonetic:'[ˈmiːtə]',article:'die',plural:'Mieten',scene:'💰',ex_de:'Die <mark>Miete</mark> ist teuer.',ex_cn:'租金很贵。'},
+    {de:'Möbel',cn:'家具',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ˈmøːbl̩]',article:'das',plural:'Möbel',scene:'🛋️',ex_de:'Wir kaufen neue <mark>Möbel</mark>.',ex_cn:'我们买新家具。'},
+    {de:'Fenster',cn:'窗户',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ˈfɛnstɐ]',article:'das',plural:'Fenster',scene:'🪟',ex_de:'Öffne das <mark>Fenster</mark>!',ex_cn:'打开窗户！'},
+    {de:'Tür',cn:'门',alt:'',pos:'n',type:'名词 (die)',phonetic:'[tyːɐ̯]',article:'die',plural:'Türen',scene:'🚪',ex_de:'Bitte schließ die <mark>Tür</mark>.',ex_cn:'请关门。'},
+    {de:'Nachbar',cn:'邻居',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ˈnaxbaːɐ̯]',article:'der',plural:'Nachbarn',scene:'🏘️',ex_de:'Mein <mark>Nachbar</mark> ist freundlich.',ex_cn:'我的邻居很友好。'},
+  ]},
+  {id:'y1d4',year:1,icon:'🍽️',name:'饮食购物',color:'#f4a623',words:[
+    {de:'essen',cn:'吃；进食',alt:'',pos:'v',type:'动词',phonetic:'[ˈɛsn̩]',article:'',plural:'',scene:'🍽️',ex_de:'Was möchtest du <mark>essen</mark>?',ex_cn:'你想吃什么？'},
+    {de:'trinken',cn:'喝；饮用',alt:'',pos:'v',type:'动词',phonetic:'[ˈtʁɪŋkn̩]',article:'',plural:'',scene:'🥤',ex_de:'Ich <mark>trinke</mark> gerne Kaffee.',ex_cn:'我喜欢喝咖啡。'},
+    {de:'Brot',cn:'面包',alt:'',pos:'n',type:'名词 (das)',phonetic:'[bʁoːt]',article:'das',plural:'Brote',scene:'🍞',ex_de:'In Deutschland isst man viel <mark>Brot</mark>.',ex_cn:'在德国人们吃很多面包。'},
+    {de:'Kaffee',cn:'咖啡',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ˈkafe]',article:'der',plural:'Kaffees',scene:'☕',ex_de:'Ich brauche morgens <mark>Kaffee</mark>.',ex_cn:'我早上需要咖啡。'},
+    {de:'Wasser',cn:'水',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ˈvasɐ]',article:'das',plural:'—',scene:'💧',ex_de:'Ein Glas <mark>Wasser</mark>, bitte.',ex_cn:'请来一杯水。'},
+    {de:'Fleisch',cn:'肉；肉类',alt:'',pos:'n',type:'名词 (das)',phonetic:'[flaɪ̯ʃ]',article:'das',plural:'—',scene:'🥩',ex_de:'Ich esse kein <mark>Fleisch</mark>.',ex_cn:'我不吃肉。'},
+    {de:'Gemüse',cn:'蔬菜',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ɡəˈmyːzə]',article:'das',plural:'—',scene:'🥦',ex_de:'Frisches <mark>Gemüse</mark> ist gesund.',ex_cn:'新鲜蔬菜很健康。'},
+    {de:'Obst',cn:'水果',alt:'',pos:'n',type:'名词 (das)',phonetic:'[oːpst]',article:'das',plural:'—',scene:'🍎',ex_de:'Ich esse jeden Tag <mark>Obst</mark>.',ex_cn:'我每天吃水果。'},
+    {de:'kaufen',cn:'购买；买',alt:'',pos:'v',type:'动词',phonetic:'[ˈkaʊ̯fn̩]',article:'',plural:'',scene:'🛒',ex_de:'Wo kann ich das <mark>kaufen</mark>?',ex_cn:'我在哪里可以买到？'},
+    {de:'Supermarkt',cn:'超市',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ˈzuːpɐˌmaʁkt]',article:'der',plural:'Supermärkte',scene:'🏪',ex_de:'Ich kaufe im <mark>Supermarkt</mark> ein.',ex_cn:'我在超市购物。'},
+    {de:'teuer',cn:'贵的；昂贵',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈtɔɪ̯ɐ]',article:'',plural:'',scene:'💸',ex_de:'Das ist zu <mark>teuer</mark>.',ex_cn:'这太贵了。'},
+    {de:'billig',cn:'便宜的',alt:'廉价',pos:'adj',type:'形容词',phonetic:'[ˈbɪlɪç]',article:'',plural:'',scene:'🏷️',ex_de:'Das ist sehr <mark>billig</mark>.',ex_cn:'这很便宜。'},
+    {de:'Geld',cn:'钱；金钱',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ɡɛlt]',article:'das',plural:'Gelder',scene:'💵',ex_de:'Ich habe kein <mark>Geld</mark>.',ex_cn:'我没有钱。'},
+    {de:'Rechnung',cn:'账单；发票',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈʁɛçnʊŋ]',article:'die',plural:'Rechnungen',scene:'🧾',ex_de:'Die <mark>Rechnung</mark>, bitte!',ex_cn:'请结账！'},
+    {de:'Restaurant',cn:'餐厅；饭店',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ʁɛstoˈʁɑ̃]',article:'das',plural:'Restaurants',scene:'🍴',ex_de:'Wir essen im <mark>Restaurant</mark>.',ex_cn:'我们在餐厅吃饭。'},
+    {de:'bestellen',cn:'点菜；订购',alt:'',pos:'v',type:'动词',phonetic:'[bəˈʃtɛlən]',article:'',plural:'',scene:'📋',ex_de:'Was möchten Sie <mark>bestellen</mark>?',ex_cn:'您想点什么？'},
+    {de:'schmecken',cn:'有味道；尝起来',alt:'',pos:'v',type:'动词',phonetic:'[ˈʃmɛkn̩]',article:'',plural:'',scene:'😋',ex_de:'Das <mark>schmeckt</mark> sehr gut.',ex_cn:'这个非常好吃。'},
+    {de:'lecker',cn:'好吃的；美味的',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈlɛkɐ]',article:'',plural:'',scene:'😋',ex_de:'Das Essen ist sehr <mark>lecker</mark>.',ex_cn:'这个食物很好吃。'},
+    {de:'hungrig',cn:'饥饿的；饿',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈhʊŋʁɪç]',article:'',plural:'',scene:'😩',ex_de:'Ich bin sehr <mark>hungrig</mark>.',ex_cn:'我很饿。'},
+    {de:'Tee',cn:'茶',alt:'',pos:'n',type:'名词 (der)',phonetic:'[teː]',article:'der',plural:'Tees',scene:'🍵',ex_de:'Möchtest du <mark>Tee</mark>?',ex_cn:'你想要茶吗？'},
+  ]},
+  {id:'y2d1',year:2,icon:'🎓',name:'大学学习',color:'#2d6a4f',words:[
+    {de:'Universität',cn:'大学',alt:'高等学府',pos:'n',type:'名词 (die)',phonetic:'[univerziˈtɛːt]',article:'die',plural:'Universitäten',scene:'🎓',ex_de:'Ich studiere an der <mark>Universität</mark>.',ex_cn:'我在大学学习。'},
+    {de:'Vorlesung',cn:'大学讲座',alt:'课',pos:'n',type:'名词 (die)',phonetic:'[foːɐ̯ˈleːzʊŋ]',article:'die',plural:'Vorlesungen',scene:'📢',ex_de:'Die <mark>Vorlesung</mark> beginnt um 9 Uhr.',ex_cn:'讲座9点开始。'},
+    {de:'Seminar',cn:'研讨课',alt:'讨论班',pos:'n',type:'名词 (das)',phonetic:'[zemiˈnaːɐ̯]',article:'das',plural:'Seminare',scene:'💭',ex_de:'Im <mark>Seminar</mark> diskutieren wir.',ex_cn:'在研讨课上我们讨论。'},
+    {de:'Prüfung',cn:'考试；检查',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈpʁyːfʊŋ]',article:'die',plural:'Prüfungen',scene:'📝',ex_de:'Ich habe morgen eine <mark>Prüfung</mark>.',ex_cn:'我明天有考试。'},
+    {de:'studieren',cn:'大学学习',alt:'研究',pos:'v',type:'动词',phonetic:'[ʃtuˈdiːrən]',article:'',plural:'',scene:'📚',ex_de:'Sie <mark>studiert</mark> Medizin.',ex_cn:'她学医。'},
+    {de:'lernen',cn:'学习；背诵',alt:'',pos:'v',type:'动词',phonetic:'[ˈlɛrnən]',article:'',plural:'',scene:'✏️',ex_de:'Ich <mark>lerne</mark> Deutsch.',ex_cn:'我学德语。'},
+    {de:'Bibliothek',cn:'图书馆',alt:'',pos:'n',type:'名词 (die)',phonetic:'[bibliˈoːtɛk]',article:'die',plural:'Bibliotheken',scene:'📖',ex_de:'Ich gehe in die <mark>Bibliothek</mark>.',ex_cn:'我去图书馆。'},
+    {de:'Note',cn:'分数；成绩',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈnoːtə]',article:'die',plural:'Noten',scene:'💯',ex_de:'Ich habe eine gute <mark>Note</mark>.',ex_cn:'我得了好成绩。'},
+    {de:'Professor',cn:'教授',alt:'',pos:'n',type:'名词 (der)',phonetic:'[pʁoˈfɛsoːɐ̯]',article:'der',plural:'Professoren',scene:'👨‍🏫',ex_de:'Der <mark>Professor</mark> erklärt das Thema.',ex_cn:'教授讲解这个主题。'},
+    {de:'Semester',cn:'学期',alt:'',pos:'n',type:'名词 (das)',phonetic:'[zeˈmɛstɐ]',article:'das',plural:'Semester',scene:'📅',ex_de:'Im dritten <mark>Semester</mark> habe ich viele Kurse.',ex_cn:'第三学期我有很多课。'},
+    {de:'Abschluss',cn:'毕业；结业',alt:'学位',pos:'n',type:'名词 (der)',phonetic:'[ˈapʃlʊs]',article:'der',plural:'Abschlüsse',scene:'🎓',ex_de:'Ich mache bald meinen <mark>Abschluss</mark>.',ex_cn:'我很快就毕业了。'},
+    {de:'Hausarbeit',cn:'学期论文',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈhaʊ̯saʁbaɪ̯t]',article:'die',plural:'Hausarbeiten',scene:'📄',ex_de:'Ich schreibe meine <mark>Hausarbeit</mark>.',ex_cn:'我在写学期论文。'},
+    {de:'Stipendium',cn:'奖学金',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ʃtiˈpɛndiʊm]',article:'das',plural:'Stipendien',scene:'🏆',ex_de:'Ich habe ein <mark>Stipendium</mark> bekommen.',ex_cn:'我获得了奖学金。'},
+    {de:'Fach',cn:'学科；专业',alt:'',pos:'n',type:'名词 (das)',phonetic:'[fax]',article:'das',plural:'Fächer',scene:'📐',ex_de:'Mein Lieblings<mark>fach</mark> ist Geschichte.',ex_cn:'我最喜欢的学科是历史。'},
+    {de:'Klausur',cn:'闭卷考试',alt:'',pos:'n',type:'名词 (die)',phonetic:'[klaʊ̯ˈzuːɐ̯]',article:'die',plural:'Klausuren',scene:'✍️',ex_de:'Die <mark>Klausur</mark> dauert zwei Stunden.',ex_cn:'闭卷考试持续两小时。'},
+    {de:'schreiben',cn:'写；书写',alt:'',pos:'v',type:'动词',phonetic:'[ˈʃʁaɪ̯bn̩]',article:'',plural:'',scene:'✍️',ex_de:'Bitte <mark>schreiben</mark> Sie Ihren Namen.',ex_cn:'请写上您的名字。'},
+    {de:'lesen',cn:'阅读；读',alt:'',pos:'v',type:'动词',phonetic:'[ˈleːzn̩]',article:'',plural:'',scene:'📗',ex_de:'Ich <mark>lese</mark> täglich.',ex_cn:'我每天阅读。'},
+    {de:'erklären',cn:'解释；说明',alt:'',pos:'v',type:'动词',phonetic:'[ɛɐ̯ˈklɛːrən]',article:'',plural:'',scene:'💡',ex_de:'Kannst du das <mark>erklären</mark>?',ex_cn:'你能解释一下吗？'},
+    {de:'Referat',cn:'课堂报告',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ˌʁefeˈʁaːt]',article:'das',plural:'Referate',scene:'🎤',ex_de:'Ich halte ein <mark>Referat</mark>.',ex_cn:'我要做一个报告。'},
+    {de:'Praktikum',cn:'实习',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ˈpʁaktɪkʊm]',article:'das',plural:'Praktika',scene:'🏭',ex_de:'Ich mache ein <mark>Praktikum</mark>.',ex_cn:'我在实习。'},
+  ]},
+  {id:'y2d2',year:2,icon:'🚌',name:'交通出行',color:'#3a86ff',words:[
+    {de:'Bahnhof',cn:'火车站',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ˈbaːnhoːf]',article:'der',plural:'Bahnhöfe',scene:'🚉',ex_de:'Wo ist der <mark>Bahnhof</mark>?',ex_cn:'火车站在哪里？'},
+    {de:'Zug',cn:'火车；列车',alt:'',pos:'n',type:'名词 (der)',phonetic:'[t͡suːk]',article:'der',plural:'Züge',scene:'🚄',ex_de:'Der <mark>Zug</mark> kommt pünktlich.',ex_cn:'火车准时来了。'},
+    {de:'Bus',cn:'公共汽车',alt:'',pos:'n',type:'名词 (der)',phonetic:'[bʊs]',article:'der',plural:'Busse',scene:'🚌',ex_de:'Ich fahre mit dem <mark>Bus</mark>.',ex_cn:'我坐公共汽车。'},
+    {de:'U-Bahn',cn:'地铁',alt:'地下铁',pos:'n',type:'名词 (die)',phonetic:'[ˈuːbaːn]',article:'die',plural:'U-Bahnen',scene:'🚇',ex_de:'Die <mark>U-Bahn</mark> kommt gleich.',ex_cn:'地铁马上来了。'},
+    {de:'Flugzeug',cn:'飞机',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ˈfluːkt͡sɔɪ̯k]',article:'das',plural:'Flugzeuge',scene:'✈️',ex_de:'Das <mark>Flugzeug</mark> startet.',ex_cn:'飞机起飞了。'},
+    {de:'Fahrrad',cn:'自行车',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ˈfaːɐ̯ˌʁaːt]',article:'das',plural:'Fahrräder',scene:'🚴',ex_de:'Ich fahre mit dem <mark>Fahrrad</mark>.',ex_cn:'我骑自行车。'},
+    {de:'fahren',cn:'行驶；乘坐',alt:'开车',pos:'v',type:'动词',phonetic:'[ˈfaːrən]',article:'',plural:'',scene:'🚗',ex_de:'Wir <mark>fahren</mark> nach Berlin.',ex_cn:'我们去柏林。'},
+    {de:'ankommen',cn:'到达；抵达',alt:'',pos:'v',type:'动词',phonetic:'[ˈankɔmən]',article:'',plural:'',scene:'🏁',ex_de:'Wann <mark>kommen</mark> wir <mark>an</mark>?',ex_cn:'我们什么时候到达？'},
+    {de:'abfahren',cn:'出发；离开',alt:'',pos:'v',type:'动词',phonetic:'[ˈapˌfaːrən]',article:'',plural:'',scene:'🚀',ex_de:'Der Zug <mark>fährt</mark> um 8 Uhr <mark>ab</mark>.',ex_cn:'火车8点出发。'},
+    {de:'Ticket',cn:'票；入场券',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ˈtɪkɪt]',article:'das',plural:'Tickets',scene:'🎫',ex_de:'Ich brauche ein <mark>Ticket</mark>.',ex_cn:'我需要一张票。'},
+    {de:'Verspätung',cn:'延误；晚点',alt:'',pos:'n',type:'名词 (die)',phonetic:'[fɛɐ̯ˈʃpɛːtʊŋ]',article:'die',plural:'Verspätungen',scene:'⏰',ex_de:'Der Zug hat <mark>Verspätung</mark>.',ex_cn:'火车晚点了。'},
+    {de:'umsteigen',cn:'换乘；换车',alt:'',pos:'v',type:'动词',phonetic:'[ˈʊmˌʃtaɪ̯ɡn̩]',article:'',plural:'',scene:'🔄',ex_de:'Sie müssen <mark>umsteigen</mark>.',ex_cn:'您需要换车。'},
+    {de:'Straße',cn:'街道；道路',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈʃtʁaːsə]',article:'die',plural:'Straßen',scene:'🛣️',ex_de:'Diese <mark>Straße</mark> ist sehr lang.',ex_cn:'这条街很长。'},
+    {de:'links',cn:'左；左边',alt:'',pos:'adv',type:'副词',phonetic:'[lɪŋks]',article:'',plural:'',scene:'⬅️',ex_de:'Biegen Sie <mark>links</mark> ab!',ex_cn:'向左转！'},
+    {de:'rechts',cn:'右；右边',alt:'',pos:'adv',type:'副词',phonetic:'[ʁɛçts]',article:'',plural:'',scene:'➡️',ex_de:'Das Hotel ist <mark>rechts</mark>.',ex_cn:'酒店在右边。'},
+    {de:'geradeaus',cn:'直走；笔直',alt:'',pos:'adv',type:'副词',phonetic:'[ɡəˈʁaːdəˌaʊ̯s]',article:'',plural:'',scene:'⬆️',ex_de:'Gehen Sie <mark>geradeaus</mark>!',ex_cn:'直走！'},
+    {de:'weit',cn:'远；遥远',alt:'',pos:'adj',type:'形容词',phonetic:'[vaɪ̯t]',article:'',plural:'',scene:'🔭',ex_de:'Ist es noch <mark>weit</mark>?',ex_cn:'还远吗？'},
+    {de:'nah',cn:'近的；附近',alt:'',pos:'adj',type:'形容词',phonetic:'[naː]',article:'',plural:'',scene:'📍',ex_de:'Das ist sehr <mark>nah</mark>.',ex_cn:'这很近。'},
+    {de:'Richtung',cn:'方向',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈʁɪçtʊŋ]',article:'die',plural:'Richtungen',scene:'🧭',ex_de:'In welche <mark>Richtung</mark>?',ex_cn:'朝哪个方向？'},
+    {de:'Haltestelle',cn:'公交站台',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈhaltəˌʃtɛlə]',article:'die',plural:'Haltestellen',scene:'🚏',ex_de:'Die <mark>Haltestelle</mark> ist dort.',ex_cn:'站台在那里。'},
+  ]},
+  {id:'y2d3',year:2,icon:'💼',name:'工作职业',color:'#7b2d8b',words:[
+    {de:'Arbeit',cn:'工作；劳动',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈaʁbaɪ̯t]',article:'die',plural:'Arbeiten',scene:'💼',ex_de:'Die <mark>Arbeit</mark> macht Spaß.',ex_cn:'工作很有趣。'},
+    {de:'arbeiten',cn:'工作',alt:'',pos:'v',type:'动词',phonetic:'[ˈaʁbaɪ̯tn̩]',article:'',plural:'',scene:'👷',ex_de:'Ich <mark>arbeite</mark> von 9 bis 17 Uhr.',ex_cn:'我从9点工作到17点。'},
+    {de:'Büro',cn:'办公室',alt:'',pos:'n',type:'名词 (das)',phonetic:'[byˈʁoː]',article:'das',plural:'Büros',scene:'🏢',ex_de:'Ich bin im <mark>Büro</mark>.',ex_cn:'我在办公室。'},
+    {de:'Chef',cn:'老板；上司',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ʃɛf]',article:'der',plural:'Chefs',scene:'👔',ex_de:'Mein <mark>Chef</mark> ist nett.',ex_cn:'我的老板很好。'},
+    {de:'Kollege',cn:'同事',alt:'',pos:'n',type:'名词 (der)',phonetic:'[kɔˈleːɡə]',article:'der',plural:'Kollegen',scene:'🤝',ex_de:'Meine <mark>Kollegen</mark> sind freundlich.',ex_cn:'我的同事们很友好。'},
+    {de:'Gehalt',cn:'工资；薪水',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ɡəˈhalt]',article:'das',plural:'Gehälter',scene:'💰',ex_de:'Das <mark>Gehalt</mark> ist gut.',ex_cn:'工资很好。'},
+    {de:'Bewerbung',cn:'求职申请',alt:'',pos:'n',type:'名词 (die)',phonetic:'[bəˈvɛʁbʊŋ]',article:'die',plural:'Bewerbungen',scene:'📩',ex_de:'Ich schicke meine <mark>Bewerbung</mark>.',ex_cn:'我发送求职申请。'},
+    {de:'Lebenslauf',cn:'简历',alt:'个人履历',pos:'n',type:'名词 (der)',phonetic:'[ˈleːbnsˌlaʊ̯f]',article:'der',plural:'Lebensläufe',scene:'📋',ex_de:'Bitte senden Sie Ihren <mark>Lebenslauf</mark>.',ex_cn:'请发送您的简历。'},
+    {de:'Urlaub',cn:'假期；休假',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ˈʊɐ̯laʊ̯p]',article:'der',plural:'Urlaube',scene:'🏖️',ex_de:'Im Sommer mache ich <mark>Urlaub</mark>.',ex_cn:'夏天我去度假。'},
+    {de:'Praktikum',cn:'实习',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ˈpʁaktɪkʊm]',article:'das',plural:'Praktika',scene:'🏭',ex_de:'Ich mache ein <mark>Praktikum</mark>.',ex_cn:'我在实习。'},
+    {de:'kündigen',cn:'辞职；解雇',alt:'',pos:'v',type:'动词',phonetic:'[ˈkʏndɪɡn̩]',article:'',plural:'',scene:'🚪',ex_de:'Er hat <mark>gekündigt</mark>.',ex_cn:'他辞职了。'},
+    {de:'einstellen',cn:'录用；雇用',alt:'',pos:'v',type:'动词',phonetic:'[ˈaɪ̯nˌʃtɛlən]',article:'',plural:'',scene:'✅',ex_de:'Die Firma <mark>stellt</mark> ein.',ex_cn:'公司在招聘。'},
+    {de:'Besprechung',cn:'会议；讨论',alt:'',pos:'n',type:'名词 (die)',phonetic:'[bəˈʃpʁɛçʊŋ]',article:'die',plural:'Besprechungen',scene:'📊',ex_de:'Wir haben eine <mark>Besprechung</mark>.',ex_cn:'我们有个会议。'},
+    {de:'Stelle',cn:'职位；岗位',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈʃtɛlə]',article:'die',plural:'Stellen',scene:'📌',ex_de:'Ich suche eine neue <mark>Stelle</mark>.',ex_cn:'我在找新职位。'},
+    {de:'Überstunden',cn:'加班',alt:'超时工作',pos:'n',type:'名词 (pl.)',phonetic:'[ˈyːbɐˌʃtʊndn̩]',article:'',plural:'',scene:'⏰',ex_de:'Ich mache <mark>Überstunden</mark>.',ex_cn:'我在加班。'},
+    {de:'erfolgreich',cn:'成功的',alt:'',pos:'adj',type:'形容词',phonetic:'[ɛɐ̯ˈfɔlkʁaɪ̯ç]',article:'',plural:'',scene:'🏆',ex_de:'Sie ist sehr <mark>erfolgreich</mark>.',ex_cn:'她非常成功。'},
+    {de:'fleißig',cn:'勤奋的',alt:'努力的',pos:'adj',type:'形容词',phonetic:'[ˈflaɪ̯sɪç]',article:'',plural:'',scene:'💪',ex_de:'Er ist sehr <mark>fleißig</mark>.',ex_cn:'他非常勤奋。'},
+    {de:'pünktlich',cn:'准时的',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈpʏŋktlɪç]',article:'',plural:'',scene:'⏱️',ex_de:'Sei bitte <mark>pünktlich</mark>!',ex_cn:'请准时！'},
+    {de:'Erfahrung',cn:'经验；体验',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ɛɐ̯ˈfaːʁʊŋ]',article:'die',plural:'Erfahrungen',scene:'🧠',ex_de:'Ich habe viel <mark>Erfahrung</mark>.',ex_cn:'我有很多经验。'},
+    {de:'Bericht',cn:'报告；报道',alt:'',pos:'n',type:'名词 (der)',phonetic:'[bəˈʁɪçt]',article:'der',plural:'Berichte',scene:'📰',ex_de:'Ich schreibe einen <mark>Bericht</mark>.',ex_cn:'我在写报告。'},
+  ]},
+  {id:'y2d4',year:2,icon:'❤️',name:'情感社交',color:'#e63946',words:[
+    {de:'glücklich',cn:'幸福的；快乐的',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈɡlʏklɪç]',article:'',plural:'',scene:'😄',ex_de:'Ich bin sehr <mark>glücklich</mark>.',ex_cn:'我很开心。'},
+    {de:'traurig',cn:'悲伤的；难过',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈtʁaʊ̯rɪç]',article:'',plural:'',scene:'😢',ex_de:'Warum bist du <mark>traurig</mark>?',ex_cn:'你为什么难过？'},
+    {de:'wütend',cn:'愤怒的；生气',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈvyːtənt]',article:'',plural:'',scene:'😠',ex_de:'Er ist sehr <mark>wütend</mark>.',ex_cn:'他很生气。'},
+    {de:'müde',cn:'疲惫的；困',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈmyːdə]',article:'',plural:'',scene:'😴',ex_de:'Ich bin sehr <mark>müde</mark>.',ex_cn:'我很累。'},
+    {de:'aufgeregt',cn:'兴奋的；激动',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈaʊ̯fɡəˌʁeːkt]',article:'',plural:'',scene:'🤩',ex_de:'Ich bin sehr <mark>aufgeregt</mark>.',ex_cn:'我非常兴奋。'},
+    {de:'freundlich',cn:'友好的；和蔼',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈfʁɔɪ̯ntlɪç]',article:'',plural:'',scene:'😊',ex_de:'Sie ist sehr <mark>freundlich</mark>.',ex_cn:'她很友好。'},
+    {de:'lieben',cn:'爱；热爱',alt:'',pos:'v',type:'动词',phonetic:'[ˈliːbn̩]',article:'',plural:'',scene:'❤️',ex_de:'Ich <mark>liebe</mark> dich.',ex_cn:'我爱你。'},
+    {de:'helfen',cn:'帮助',alt:'',pos:'v',type:'动词',phonetic:'[ˈhɛlfn̩]',article:'',plural:'',scene:'🤲',ex_de:'Kannst du mir <mark>helfen</mark>?',ex_cn:'你能帮我吗？'},
+    {de:'Freundschaft',cn:'友谊',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈfʁɔɪ̯ntʃaft]',article:'die',plural:'Freundschaften',scene:'🤝',ex_de:'Unsere <mark>Freundschaft</mark> ist wichtig.',ex_cn:'我们的友谊很重要。'},
+    {de:'vermissen',cn:'想念；思念',alt:'',pos:'v',type:'动词',phonetic:'[fɛɐ̯ˈmɪsn̩]',article:'',plural:'',scene:'🥺',ex_de:'Ich <mark>vermisse</mark> meine Familie.',ex_cn:'我想念我的家人。'},
+    {de:'hoffen',cn:'希望；期望',alt:'',pos:'v',type:'动词',phonetic:'[ˈhɔfn̩]',article:'',plural:'',scene:'🙏',ex_de:'Ich <mark>hoffe</mark>, du kommst.',ex_cn:'我希望你来。'},
+    {de:'lachen',cn:'笑；大笑',alt:'',pos:'v',type:'动词',phonetic:'[ˈlaxn̩]',article:'',plural:'',scene:'😂',ex_de:'Kinder <mark>lachen</mark> viel.',ex_cn:'孩子们笑得多。'},
+    {de:'weinen',cn:'哭泣；流泪',alt:'',pos:'v',type:'动词',phonetic:'[ˈvaɪ̯nən]',article:'',plural:'',scene:'😭',ex_de:'Sie <mark>weint</mark> vor Freude.',ex_cn:'她高兴地哭了。'},
+    {de:'streiten',cn:'争吵',alt:'争论',pos:'v',type:'动词',phonetic:'[ˈʃtʁaɪ̯tn̩]',article:'',plural:'',scene:'😤',ex_de:'Sie <mark>streiten</mark> sich.',ex_cn:'他们在争吵。'},
+    {de:'entschuldigen',cn:'原谅；道歉',alt:'',pos:'v',type:'动词',phonetic:'[ɛntˈʃʊldɪɡn̩]',article:'',plural:'',scene:'🙇',ex_de:'Bitte <mark>entschuldige</mark> mich!',ex_cn:'请原谅我！'},
+    {de:'danken',cn:'感谢',alt:'',pos:'v',type:'动词',phonetic:'[ˈdaŋkən]',article:'',plural:'',scene:'🙏',ex_de:'Ich <mark>danke</mark> Ihnen sehr.',ex_cn:'我非常感谢您。'},
+    {de:'Angst',cn:'恐惧；焦虑',alt:'',pos:'n',type:'名词 (die)',phonetic:'[aŋst]',article:'die',plural:'Ängste',scene:'😨',ex_de:'Ich habe <mark>Angst</mark>.',ex_cn:'我很害怕。'},
+    {de:'Liebe',cn:'爱；爱情',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈliːbə]',article:'die',plural:'—',scene:'💕',ex_de:'<mark>Liebe</mark> macht das Leben schöner.',ex_cn:'爱让生活更美好。'},
+    {de:'höflich',cn:'有礼貌的',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈhøːflɪç]',article:'',plural:'',scene:'🎩',ex_de:'Sei bitte <mark>höflich</mark>!',ex_cn:'请要有礼貌！'},
+    {de:'ehrlich',cn:'诚实的',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈeːɐ̯lɪç]',article:'',plural:'',scene:'💎',ex_de:'Er ist immer <mark>ehrlich</mark>.',ex_cn:'他总是诚实的。'},
+  ]},
+  {id:'y3d1',year:3,icon:'🌍',name:'社会与文化',color:'#2d6a4f',words:[
+    {de:'Kultur',cn:'文化；教养',alt:'',pos:'n',type:'名词 (die)',phonetic:'[kʊlˈtuːɐ̯]',article:'die',plural:'Kulturen',scene:'🎭',ex_de:'Deutsche <mark>Kultur</mark> ist interessant.',ex_cn:'德国文化很有趣。'},
+    {de:'Geschichte',cn:'历史；故事',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ɡəˈʃɪçtə]',article:'die',plural:'Geschichten',scene:'📜',ex_de:'Ich studiere <mark>Geschichte</mark>.',ex_cn:'我学历史。'},
+    {de:'Gesellschaft',cn:'社会；公司',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ɡəˈzɛlʃaft]',article:'die',plural:'Gesellschaften',scene:'👥',ex_de:'Die <mark>Gesellschaft</mark> verändert sich.',ex_cn:'社会在变化。'},
+    {de:'Demokratie',cn:'民主',alt:'',pos:'n',type:'名词 (die)',phonetic:'[demokʁaˈtiː]',article:'die',plural:'Demokratien',scene:'🗳️',ex_de:'<mark>Demokratie</mark> ist wichtig.',ex_cn:'民主很重要。'},
+    {de:'Freiheit',cn:'自由',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈfʁaɪ̯haɪ̯t]',article:'die',plural:'—',scene:'🕊️',ex_de:'<mark>Freiheit</mark> ist ein Grundrecht.',ex_cn:'自由是基本权利。'},
+    {de:'Tradition',cn:'传统',alt:'',pos:'n',type:'名词 (die)',phonetic:'[tʁadiˈt͡si̯oːn]',article:'die',plural:'Traditionen',scene:'🎋',ex_de:'Das ist eine alte <mark>Tradition</mark>.',ex_cn:'这是古老传统。'},
+    {de:'Medien',cn:'媒体；媒介',alt:'',pos:'n',type:'名词 (pl.)',phonetic:'[ˈmeːdi̯ən]',article:'',plural:'',scene:'📺',ex_de:'Die <mark>Medien</mark> sind einflussreich.',ex_cn:'媒体很有影响力。'},
+    {de:'Meinung',cn:'意见；看法',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈmaɪ̯nʊŋ]',article:'die',plural:'Meinungen',scene:'💭',ex_de:'Was ist Ihre <mark>Meinung</mark>?',ex_cn:'您有什么看法？'},
+    {de:'Diskussion',cn:'讨论；辩论',alt:'',pos:'n',type:'名词 (die)',phonetic:'[dɪskʊˈsi̯oːn]',article:'die',plural:'Diskussionen',scene:'🗨️',ex_de:'Wir führen eine <mark>Diskussion</mark>.',ex_cn:'我们在进行讨论。'},
+    {de:'Integration',cn:'融合；一体化',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ɪntɛɡʁaˈt͡si̯oːn]',article:'die',plural:'—',scene:'🤝',ex_de:'<mark>Integration</mark> ist ein Prozess.',ex_cn:'融合是个过程。'},
+    {de:'Vielfalt',cn:'多样性',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈfiːlfalt]',article:'die',plural:'—',scene:'🌈',ex_de:'<mark>Vielfalt</mark> bereichert uns.',ex_cn:'多样性使我们丰富。'},
+    {de:'Nachrichten',cn:'新闻；消息',alt:'',pos:'n',type:'名词 (pl.)',phonetic:'[ˈnaːxˌʁɪçtn̩]',article:'',plural:'',scene:'📰',ex_de:'Ich schaue die <mark>Nachrichten</mark>.',ex_cn:'我看新闻。'},
+    {de:'Einwanderer',cn:'移民',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ˈaɪ̯nˌvandəʁɐ]',article:'der',plural:'Einwanderer',scene:'✈️',ex_de:'Viele <mark>Einwanderer</mark> leben hier.',ex_cn:'许多移民住在这里。'},
+    {de:'Gleichheit',cn:'平等',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈɡlaɪ̯çhaɪ̯t]',article:'die',plural:'—',scene:'⚖️',ex_de:'<mark>Gleichheit</mark> ist wichtig.',ex_cn:'平等很重要。'},
+    {de:'Wert',cn:'价值；价值观',alt:'',pos:'n',type:'名词 (der)',phonetic:'[vɛʁt]',article:'der',plural:'Werte',scene:'💎',ex_de:'Das ist ein wichtiger <mark>Wert</mark>.',ex_cn:'这是重要的价值观。'},
+    {de:'Gewohnheit',cn:'习惯；惯例',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ɡəˈvoːnhaɪ̯t]',article:'die',plural:'Gewohnheiten',scene:'🔄',ex_de:'Das ist eine schlechte <mark>Gewohnheit</mark>.',ex_cn:'这是个坏习惯。'},
+    {de:'Globalisierung',cn:'全球化',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ɡlobaliˈziːrʊŋ]',article:'die',plural:'—',scene:'🌐',ex_de:'<mark>Globalisierung</mark> verbindet die Welt.',ex_cn:'全球化连接了世界。'},
+    {de:'kritisch',cn:'批判的；关键的',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈkʁɪtɪʃ]',article:'',plural:'',scene:'🔍',ex_de:'Man muss <mark>kritisch</mark> denken.',ex_cn:'必须批判性思考。'},
+    {de:'sozial',cn:'社会的；社交的',alt:'',pos:'adj',type:'形容词',phonetic:'[zoˈt͡si̯aːl]',article:'',plural:'',scene:'👫',ex_de:'Das ist ein <mark>soziales</mark> Problem.',ex_cn:'这是个社会问题。'},
+    {de:'politisch',cn:'政治的',alt:'',pos:'adj',type:'形容词',phonetic:'[poˈliːtɪʃ]',article:'',plural:'',scene:'🏛️',ex_de:'Das ist eine <mark>politische</mark> Frage.',ex_cn:'这是个政治问题。'},
+  ]},
+  {id:'y3d2',year:3,icon:'🌱',name:'环境与科技',color:'#3a86ff',words:[
+    {de:'Umwelt',cn:'环境',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈʊmˌvɛlt]',article:'die',plural:'—',scene:'🌿',ex_de:'Wir schützen die <mark>Umwelt</mark>.',ex_cn:'我们保护环境。'},
+    {de:'Klimawandel',cn:'气候变化',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ˈkliːmaˌvandl̩]',article:'der',plural:'—',scene:'🌡️',ex_de:'Der <mark>Klimawandel</mark> ist gefährlich.',ex_cn:'气候变化很危险。'},
+    {de:'nachhaltig',cn:'可持续的',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈnaːxˌhaltɪç]',article:'',plural:'',scene:'♻️',ex_de:'Wir brauchen <mark>nachhaltige</mark> Lösungen.',ex_cn:'我们需要可持续方案。'},
+    {de:'Energie',cn:'能源；能量',alt:'',pos:'n',type:'名词 (die)',phonetic:'[eneʁˈɡiː]',article:'die',plural:'Energien',scene:'⚡',ex_de:'Wir verbrauchen viel <mark>Energie</mark>.',ex_cn:'我们消耗很多能源。'},
+    {de:'Technologie',cn:'技术；工艺',alt:'',pos:'n',type:'名词 (die)',phonetic:'[tɛçnoloˈɡiː]',article:'die',plural:'Technologien',scene:'🔧',ex_de:'Neue <mark>Technologie</mark> verändert alles.',ex_cn:'新技术改变了一切。'},
+    {de:'Digitalisierung',cn:'数字化',alt:'',pos:'n',type:'名词 (die)',phonetic:'[diɡitaliˈziːrʊŋ]',article:'die',plural:'—',scene:'💻',ex_de:'<mark>Digitalisierung</mark> betrifft alle.',ex_cn:'数字化影响所有人。'},
+    {de:'künstliche Intelligenz',cn:'人工智能',alt:'AI',pos:'n',type:'名词短语',phonetic:'[ˈkʏnstlɪçə ɪntɛlɪˈɡɛnts]',article:'die',plural:'—',scene:'🤖',ex_de:'<mark>KI</mark> ist überall.',ex_cn:'人工智能无处不在。'},
+    {de:'Recycling',cn:'回收利用',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ʁiˈsaɪ̯klɪŋ]',article:'das',plural:'—',scene:'♻️',ex_de:'<mark>Recycling</mark> ist Pflicht.',ex_cn:'回收利用是义务。'},
+    {de:'Verschmutzung',cn:'污染',alt:'',pos:'n',type:'名词 (die)',phonetic:'[fɛɐ̯ˈʃmʊtsʊŋ]',article:'die',plural:'—',scene:'🏭',ex_de:'Die <mark>Verschmutzung</mark> nimmt zu.',ex_cn:'污染在增加。'},
+    {de:'schützen',cn:'保护',alt:'',pos:'v',type:'动词',phonetic:'[ˈʃʏtsn̩]',article:'',plural:'',scene:'🛡️',ex_de:'Wir müssen die Natur <mark>schützen</mark>.',ex_cn:'我们必须保护自然。'},
+    {de:'entwickeln',cn:'发展；开发',alt:'',pos:'v',type:'动词',phonetic:'[ɛntˈvɪkl̩n]',article:'',plural:'',scene:'🚀',ex_de:'Sie <mark>entwickeln</mark> neue Software.',ex_cn:'他们在开发新软件。'},
+    {de:'Forschung',cn:'研究；科研',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈfɔʁʃʊŋ]',article:'die',plural:'Forschungen',scene:'🔬',ex_de:'Die <mark>Forschung</mark> macht Fortschritte.',ex_cn:'研究在进步。'},
+    {de:'Innovation',cn:'创新',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ɪnovaˈt͡si̯oːn]',article:'die',plural:'Innovationen',scene:'💡',ex_de:'Deutschland ist für <mark>Innovationen</mark> bekannt.',ex_cn:'德国以创新著称。'},
+    {de:'erneuerbar',cn:'可再生的',alt:'',pos:'adj',type:'形容词',phonetic:'[ɛɐ̯ˈnɔɪ̯əʁbaːɐ̯]',article:'',plural:'',scene:'🌞',ex_de:'<mark>Erneuerbare</mark> Energien sind die Zukunft.',ex_cn:'可再生能源是未来。'},
+    {de:'Zukunft',cn:'未来；将来',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈt͡suːkʊnft]',article:'die',plural:'—',scene:'🔭',ex_de:'Die <mark>Zukunft</mark> ist unbekannt.',ex_cn:'未来是未知的。'},
+    {de:'Wissenschaft',cn:'科学；学术',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈvɪsn̩ʃaft]',article:'die',plural:'Wissenschaften',scene:'🔬',ex_de:'<mark>Wissenschaft</mark> ist wichtig.',ex_cn:'科学很重要。'},
+    {de:'Fortschritt',cn:'进步；进展',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ˈfɔʁtʃʁɪt]',article:'der',plural:'Fortschritte',scene:'📈',ex_de:'Wir machen große <mark>Fortschritte</mark>.',ex_cn:'我们取得了大进步。'},
+    {de:'Lösung',cn:'解决方案；答案',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈløːzʊŋ]',article:'die',plural:'Lösungen',scene:'✅',ex_de:'Wir brauchen eine <mark>Lösung</mark>.',ex_cn:'我们需要解决方案。'},
+    {de:'Problem',cn:'问题；难题',alt:'',pos:'n',type:'名词 (das)',phonetic:'[pʁoˈbleːm]',article:'das',plural:'Probleme',scene:'❓',ex_de:'Das ist ein großes <mark>Problem</mark>.',ex_cn:'这是个大问题。'},
+    {de:'digital',cn:'数字的；数码的',alt:'',pos:'adj',type:'形容词',phonetic:'[diɡiˈtaːl]',article:'',plural:'',scene:'📱',ex_de:'Wir leben in einer <mark>digitalen</mark> Welt.',ex_cn:'我们生活在数字世界。'},
+  ]},
+  {id:'y3d3',year:3,icon:'💊',name:'健康医疗',color:'#e63946',words:[
+    {de:'Gesundheit',cn:'健康',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ɡəˈzʊnthaɪ̯t]',article:'die',plural:'—',scene:'💪',ex_de:'<mark>Gesundheit</mark> ist wichtig.',ex_cn:'健康很重要。'},
+    {de:'Arzt',cn:'医生',alt:'',pos:'n',type:'名词 (der)',phonetic:'[aʁtst]',article:'der',plural:'Ärzte',scene:'👨‍⚕️',ex_de:'Ich gehe zum <mark>Arzt</mark>.',ex_cn:'我去看医生。'},
+    {de:'Krankenhaus',cn:'医院',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ˈkʁaŋkn̩ˌhaʊ̯s]',article:'das',plural:'Krankenhäuser',scene:'🏥',ex_de:'Er liegt im <mark>Krankenhaus</mark>.',ex_cn:'他住院了。'},
+    {de:'Krankheit',cn:'疾病',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈkʁaŋkhaɪ̯t]',article:'die',plural:'Krankheiten',scene:'🤒',ex_de:'Diese <mark>Krankheit</mark> ist ansteckend.',ex_cn:'这种疾病有传染性。'},
+    {de:'Medikament',cn:'药物；药品',alt:'',pos:'n',type:'名词 (das)',phonetic:'[medɪkaˈmɛnt]',article:'das',plural:'Medikamente',scene:'💊',ex_de:'Das <mark>Medikament</mark> hilft.',ex_cn:'这种药有效。'},
+    {de:'Schmerz',cn:'疼痛；痛苦',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ʃmɛʁts]',article:'der',plural:'Schmerzen',scene:'🤕',ex_de:'Ich habe <mark>Schmerzen</mark>.',ex_cn:'我很痛。'},
+    {de:'gesund',cn:'健康的',alt:'',pos:'adj',type:'形容词',phonetic:'[ɡəˈzʊnt]',article:'',plural:'',scene:'🌿',ex_de:'Lebe <mark>gesund</mark>!',ex_cn:'健康生活！'},
+    {de:'krank',cn:'生病的；患病',alt:'',pos:'adj',type:'形容词',phonetic:'[kʁaŋk]',article:'',plural:'',scene:'🤧',ex_de:'Ich bin <mark>krank</mark>.',ex_cn:'我生病了。'},
+    {de:'Allergie',cn:'过敏',alt:'',pos:'n',type:'名词 (die)',phonetic:'[alɛʁˈɡiː]',article:'die',plural:'Allergien',scene:'🤧',ex_de:'Ich habe eine <mark>Allergie</mark>.',ex_cn:'我有过敏症。'},
+    {de:'Operation',cn:'手术；行动',alt:'',pos:'n',type:'名词 (die)',phonetic:'[opəʁaˈt͡si̯oːn]',article:'die',plural:'Operationen',scene:'🔪',ex_de:'Die <mark>Operation</mark> war erfolgreich.',ex_cn:'手术成功了。'},
+    {de:'Versicherung',cn:'保险',alt:'',pos:'n',type:'名词 (die)',phonetic:'[fɛɐ̯ˈzɪçəʁʊŋ]',article:'die',plural:'Versicherungen',scene:'🛡️',ex_de:'Ich habe eine <mark>Versicherung</mark>.',ex_cn:'我有保险。'},
+    {de:'Ernährung',cn:'饮食；营养',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ɛɐ̯ˈnɛːʁʊŋ]',article:'die',plural:'—',scene:'🥗',ex_de:'Gesunde <mark>Ernährung</mark> ist wichtig.',ex_cn:'健康饮食很重要。'},
+    {de:'Sport treiben',cn:'运动；锻炼',alt:'',pos:'v',type:'动词短语',phonetic:'[ˈʃpɔʁt ˈtʁaɪ̯bm̩]',article:'',plural:'',scene:'🏃',ex_de:'Ich <mark>treibe</mark> Sport.',ex_cn:'我做运动。'},
+    {de:'Rezept',cn:'处方；食谱',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ʁeˈt͡sɛpt]',article:'das',plural:'Rezepte',scene:'📋',ex_de:'Ich brauche ein <mark>Rezept</mark>.',ex_cn:'我需要处方。'},
+    {de:'impfen',cn:'接种疫苗',alt:'',pos:'v',type:'动词',phonetic:'[ˈɪmpfn̩]',article:'',plural:'',scene:'💉',ex_de:'Kinder sollten <mark>geimpft</mark> werden.',ex_cn:'孩子应该接种疫苗。'},
+    {de:'Blut',cn:'血液',alt:'',pos:'n',type:'名词 (das)',phonetic:'[bluːt]',article:'das',plural:'—',scene:'🩸',ex_de:'Er hat viel <mark>Blut</mark> verloren.',ex_cn:'他失血很多。'},
+    {de:'Fieber',cn:'发烧；热',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ˈfiːbɐ]',article:'das',plural:'—',scene:'🌡️',ex_de:'Ich habe <mark>Fieber</mark>.',ex_cn:'我发烧了。'},
+    {de:'Termin',cn:'约诊；预约',alt:'',pos:'n',type:'名词 (der)',phonetic:'[tɛʁˈmiːn]',article:'der',plural:'Termine',scene:'📅',ex_de:'Ich habe einen <mark>Termin</mark> beim Arzt.',ex_cn:'我预约了医生。'},
+    {de:'Apotheke',cn:'药店；药房',alt:'',pos:'n',type:'名词 (die)',phonetic:'[apoˈteːkə]',article:'die',plural:'Apotheken',scene:'⚕️',ex_de:'Ich gehe in die <mark>Apotheke</mark>.',ex_cn:'我去药店。'},
+    {de:'erholen',cn:'恢复；休息',alt:'',pos:'v',type:'动词',phonetic:'[ɛɐ̯ˈhoːlən]',article:'',plural:'',scene:'😌',ex_de:'Ich muss mich <mark>erholen</mark>.',ex_cn:'我需要休息恢复。'},
+  ]},
+  {id:'y3d4',year:3,icon:'📈',name:'经济政治',color:'#f4a623',words:[
+    {de:'Wirtschaft',cn:'经济',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈvɪʁtʃaft]',article:'die',plural:'—',scene:'📊',ex_de:'Die <mark>Wirtschaft</mark> wächst.',ex_cn:'经济在增长。'},
+    {de:'Markt',cn:'市场；集市',alt:'',pos:'n',type:'名词 (der)',phonetic:'[maʁkt]',article:'der',plural:'Märkte',scene:'🛒',ex_de:'Der <mark>Markt</mark> ist geöffnet.',ex_cn:'市场开门了。'},
+    {de:'Inflation',cn:'通货膨胀',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ɪnflaˈt͡si̯oːn]',article:'die',plural:'—',scene:'📈',ex_de:'Die <mark>Inflation</mark> steigt.',ex_cn:'通货膨胀上升了。'},
+    {de:'Steuer',cn:'税；税收',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈʃtɔɪ̯ɐ]',article:'die',plural:'Steuern',scene:'💰',ex_de:'Die <mark>Steuern</mark> sind hoch.',ex_cn:'税收很高。'},
+    {de:'Regierung',cn:'政府',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ʁeˈɡiːʁʊŋ]',article:'die',plural:'Regierungen',scene:'🏛️',ex_de:'Die <mark>Regierung</mark> plant neue Gesetze.',ex_cn:'政府计划新法律。'},
+    {de:'Parlament',cn:'议会；国会',alt:'',pos:'n',type:'名词 (das)',phonetic:'[paʁlaˈmɛnt]',article:'das',plural:'Parlamente',scene:'🗳️',ex_de:'Das <mark>Parlament</mark> tagt.',ex_cn:'议会在开会。'},
+    {de:'wählen',cn:'选举；选择',alt:'',pos:'v',type:'动词',phonetic:'[ˈvɛːlən]',article:'',plural:'',scene:'🗳️',ex_de:'Ich gehe <mark>wählen</mark>.',ex_cn:'我去投票。'},
+    {de:'Gesetz',cn:'法律；法令',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ɡəˈzɛts]',article:'das',plural:'Gesetze',scene:'⚖️',ex_de:'Das <mark>Gesetz</mark> gilt für alle.',ex_cn:'法律对所有人有效。'},
+    {de:'Krise',cn:'危机',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈkʁiːzə]',article:'die',plural:'Krisen',scene:'⚠️',ex_de:'Die <mark>Krise</mark> trifft viele.',ex_cn:'危机影响了很多人。'},
+    {de:'Investition',cn:'投资',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ɪnvɛstiˈt͡si̯oːn]',article:'die',plural:'Investitionen',scene:'📈',ex_de:'<mark>Investitionen</mark> in Bildung steigen.',ex_cn:'教育投资在增加。'},
+    {de:'Export',cn:'出口',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ɛkˈspɔʁt]',article:'der',plural:'Exporte',scene:'🚢',ex_de:'Der <mark>Export</mark> steigt.',ex_cn:'出口在增长。'},
+    {de:'Import',cn:'进口',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ˈɪmpɔʁt]',article:'der',plural:'Importe',scene:'📦',ex_de:'Der <mark>Import</mark> aus China ist groß.',ex_cn:'来自中国的进口量很大。'},
+    {de:'Schulden',cn:'债务；欠款',alt:'',pos:'n',type:'名词 (pl.)',phonetic:'[ˈʃʊldn̩]',article:'',plural:'',scene:'💸',ex_de:'Das Land hat <mark>Schulden</mark>.',ex_cn:'这个国家负债。'},
+    {de:'Haushalt',cn:'预算；家庭',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ˈhaʊ̯shaɪ̯lt]',article:'der',plural:'Haushalte',scene:'🏠',ex_de:'Der Staats<mark>haushalt</mark> ist ausgeglichen.',ex_cn:'国家预算已平衡。'},
+    {de:'Arbeitslosigkeit',cn:'失业率',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈaʁbaɪ̯tsˌloːzɪçkaɪ̯t]',article:'die',plural:'—',scene:'📉',ex_de:'Die <mark>Arbeitslosigkeit</mark> sinkt.',ex_cn:'失业率在下降。'},
+    {de:'wirtschaftlich',cn:'经济的；经济上',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈvɪʁtʃaftlɪç]',article:'',plural:'',scene:'📊',ex_de:'Das ist <mark>wirtschaftlich</mark> sinnvoll.',ex_cn:'这在经济上是合理的。'},
+    {de:'finanziell',cn:'财务的；经济的',alt:'',pos:'adj',type:'形容词',phonetic:'[finanˈt͡si̯ɛl]',article:'',plural:'',scene:'💳',ex_de:'Ich habe <mark>finanzielle</mark> Probleme.',ex_cn:'我有财务问题。'},
+    {de:'Wachstum',cn:'增长；成长',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ˈvakstʊm]',article:'das',plural:'—',scene:'📈',ex_de:'Das <mark>Wachstum</mark> ist stark.',ex_cn:'增长势头强劲。'},
+    {de:'Unternehmen',cn:'企业；公司',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ʊntɐˈneːmən]',article:'das',plural:'Unternehmen',scene:'🏭',ex_de:'Das <mark>Unternehmen</mark> wächst.',ex_cn:'这家公司在增长。'},
+    {de:'Konkurrenz',cn:'竞争；竞争者',alt:'',pos:'n',type:'名词 (die)',phonetic:'[kɔŋkʊˈʁɛnts]',article:'die',plural:'—',scene:'🏆',ex_de:'Die <mark>Konkurrenz</mark> ist stark.',ex_cn:'竞争很激烈。'},
+  ]},
+  {id:'y4d1',year:4,icon:'🔬',name:'学术论证',color:'#2d6a4f',words:[
+    {de:'These',cn:'论题；论点',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈteːzə]',article:'die',plural:'Thesen',scene:'📌',ex_de:'Die <mark>These</mark> muss bewiesen werden.',ex_cn:'论点必须被证明。'},
+    {de:'Hypothese',cn:'假设；假说',alt:'',pos:'n',type:'名词 (die)',phonetic:'[hypoˈteːzə]',article:'die',plural:'Hypothesen',scene:'❓',ex_de:'Die <mark>Hypothese</mark> wird überprüft.',ex_cn:'假设正在被验证。'},
+    {de:'analysieren',cn:'分析；解析',alt:'',pos:'v',type:'动词',phonetic:'[analiˈziːʁən]',article:'',plural:'',scene:'🔍',ex_de:'Wir müssen die Daten <mark>analysieren</mark>.',ex_cn:'我们必须分析数据。'},
+    {de:'interpretieren',cn:'解释；诠释',alt:'',pos:'v',type:'动词',phonetic:'[ɪntɛʁpʁeˈtiːʁən]',article:'',plural:'',scene:'💡',ex_de:'Wie kann man das <mark>interpretieren</mark>?',ex_cn:'如何诠释这个？'},
+    {de:'Ergebnis',cn:'结果；成果',alt:'结论',pos:'n',type:'名词 (das)',phonetic:'[ɛɐ̯ˈɡeːpnɪs]',article:'das',plural:'Ergebnisse',scene:'🎯',ex_de:'Das <mark>Ergebnis</mark> ist interessant.',ex_cn:'结果很有趣。'},
+    {de:'belegen',cn:'证明；证实',alt:'',pos:'v',type:'动词',phonetic:'[bəˈleːɡn̩]',article:'',plural:'',scene:'✅',ex_de:'Diese Studie <mark>belegt</mark> die Theorie.',ex_cn:'这项研究证实了理论。'},
+    {de:'widerlegen',cn:'反驳；驳斥',alt:'',pos:'v',type:'动词',phonetic:'[ˈviːdɐˌleːɡn̩]',article:'',plural:'',scene:'❌',ex_de:'Er konnte die These <mark>widerlegen</mark>.',ex_cn:'他能反驳论点。'},
+    {de:'Zitat',cn:'引文；引用',alt:'',pos:'n',type:'名词 (das)',phonetic:'[t͡siˈtaːt]',article:'das',plural:'Zitate',scene:'💬',ex_de:'Das <mark>Zitat</mark> ist wichtig.',ex_cn:'这段引文很重要。'},
+    {de:'Schlussfolgerung',cn:'结论；推论',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈʃlʊsˌfɔlɡəʁʊŋ]',article:'die',plural:'Schlussfolgerungen',scene:'🎯',ex_de:'Die <mark>Schlussfolgerung</mark> ist logisch.',ex_cn:'这个结论合乎逻辑。'},
+    {de:'vergleichen',cn:'比较；对比',alt:'',pos:'v',type:'动词',phonetic:'[fɛɐ̯ˈɡlaɪ̯çn̩]',article:'',plural:'',scene:'⚖️',ex_de:'Man muss die Ergebnisse <mark>vergleichen</mark>.',ex_cn:'需要比较结果。'},
+    {de:'Dissertation',cn:'博士论文',alt:'',pos:'n',type:'名词 (die)',phonetic:'[dɪsɛʁtaˈt͡si̯oːn]',article:'die',plural:'Dissertationen',scene:'📜',ex_de:'Sie schreibt ihre <mark>Dissertation</mark>.',ex_cn:'她在写博士论文。'},
+    {de:'Methodik',cn:'方法论',alt:'',pos:'n',type:'名词 (die)',phonetic:'[meˈtoːdɪk]',article:'die',plural:'—',scene:'🗺️',ex_de:'Die <mark>Methodik</mark> ist solide.',ex_cn:'方法论很扎实。'},
+    {de:'Literatur',cn:'文献；文学',alt:'',pos:'n',type:'名词 (die)',phonetic:'[litəʁaˈtuːɐ̯]',article:'die',plural:'—',scene:'📚',ex_de:'Die <mark>Literatur</mark> ist umfangreich.',ex_cn:'文献很丰富。'},
+    {de:'Argumentation',cn:'论证；论述',alt:'',pos:'n',type:'名词 (die)',phonetic:'[aʁɡumɛntaˈt͡si̯oːn]',article:'die',plural:'—',scene:'🗣️',ex_de:'Die <mark>Argumentation</mark> ist überzeugend.',ex_cn:'论证很有说服力。'},
+    {de:'differenzieren',cn:'区分；区别',alt:'',pos:'v',type:'动词',phonetic:'[difɛʁɛnˈt͡siːʁən]',article:'',plural:'',scene:'🔀',ex_de:'Man muss hier <mark>differenzieren</mark>.',ex_cn:'这里必须加以区分。'},
+    {de:'darstellen',cn:'呈现；描述',alt:'',pos:'v',type:'动词',phonetic:'[ˈdaːɐ̯ˌʃtɛlən]',article:'',plural:'',scene:'🎨',ex_de:'Der Autor <mark>stellt</mark> das Problem <mark>dar</mark>.',ex_cn:'作者呈现了这个问题。'},
+    {de:'Perspektive',cn:'视角；前景',alt:'',pos:'n',type:'名词 (die)',phonetic:'[pɛʁspɛkˈtiːvə]',article:'die',plural:'Perspektiven',scene:'👁️',ex_de:'Aus welcher <mark>Perspektive</mark>?',ex_cn:'从哪个视角？'},
+    {de:'Zusammenhang',cn:'联系；语境',alt:'',pos:'n',type:'名词 (der)',phonetic:'[t͡suˈzamənˌhaŋ]',article:'der',plural:'Zusammenhänge',scene:'🔗',ex_de:'Im <mark>Zusammenhang</mark> betrachtet.',ex_cn:'放在背景中来看。'},
+    {de:'abstrakt',cn:'抽象的',alt:'',pos:'adj',type:'形容词',phonetic:'[apˈstʁakt]',article:'',plural:'',scene:'🌀',ex_de:'Das ist sehr <mark>abstrakt</mark>.',ex_cn:'这非常抽象。'},
+    {de:'konkret',cn:'具体的；实际的',alt:'',pos:'adj',type:'形容词',phonetic:'[kɔnˈkʁeːt]',article:'',plural:'',scene:'🧱',ex_de:'Bitte sei <mark>konkreter</mark>.',ex_cn:'请更具体一点。'},
+  ]},
+  {id:'y4d2',year:4,icon:'🏛️',name:'哲学文学',color:'#7b2d8b',words:[
+    {de:'Philosophie',cn:'哲学',alt:'',pos:'n',type:'名词 (die)',phonetic:'[filozofiː]',article:'die',plural:'—',scene:'🤔',ex_de:'<mark>Philosophie</mark> stellt große Fragen.',ex_cn:'哲学提出宏大问题。'},
+    {de:'Ethik',cn:'伦理学；道德',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈeːtɪk]',article:'die',plural:'—',scene:'⚖️',ex_de:'<mark>Ethik</mark> ist das Fundament.',ex_cn:'伦理是基础。'},
+    {de:'Aufklärung',cn:'启蒙运动',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈaʊ̯fˌklɛːʁʊŋ]',article:'die',plural:'—',scene:'💡',ex_de:'Die <mark>Aufklärung</mark> veränderte das Denken.',ex_cn:'启蒙运动改变了思维。'},
+    {de:'Vernunft',cn:'理性；理智',alt:'',pos:'n',type:'名词 (die)',phonetic:'[fɛɐ̯ˈnʊnft]',article:'die',plural:'—',scene:'🧠',ex_de:'Die <mark>Vernunft</mark> leitet uns.',ex_cn:'理性引导我们。'},
+    {de:'Bewusstsein',cn:'意识；觉悟',alt:'',pos:'n',type:'名词 (das)',phonetic:'[bəˈvʊstzaɪ̯n]',article:'das',plural:'—',scene:'💭',ex_de:'<mark>Bewusstsein</mark> ist schwer zu definieren.',ex_cn:'意识很难定义。'},
+    {de:'Erkenntnis',cn:'认识；洞见',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ɛɐ̯ˈkɛntnɪs]',article:'die',plural:'Erkenntnisse',scene:'✨',ex_de:'Diese <mark>Erkenntnis</mark> ist revolutionär.',ex_cn:'这一认识是革命性的。'},
+    {de:'Symbol',cn:'象征；符号',alt:'',pos:'n',type:'名词 (das)',phonetic:'[zʏmˈboːl]',article:'das',plural:'Symbole',scene:'🕊️',ex_de:'Die Taube ist ein <mark>Symbol</mark> des Friedens.',ex_cn:'鸽子是和平的象征。'},
+    {de:'Metapher',cn:'隐喻；比喻',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈmetafɐ]',article:'die',plural:'Metaphern',scene:'🌊',ex_de:'Das ist eine schöne <mark>Metapher</mark>.',ex_cn:'这是个优美的隐喻。'},
+    {de:'Ideologie',cn:'意识形态',alt:'',pos:'n',type:'名词 (die)',phonetic:'[idealoˈɡiː]',article:'die',plural:'Ideologien',scene:'🏳️',ex_de:'Jede Partei hat eine <mark>Ideologie</mark>.',ex_cn:'每个政党都有意识形态。'},
+    {de:'Utopie',cn:'乌托邦',alt:'',pos:'n',type:'名词 (die)',phonetic:'[utoˈpiː]',article:'die',plural:'Utopien',scene:'🌈',ex_de:'Das bleibt eine <mark>Utopie</mark>.',ex_cn:'这仍然是乌托邦。'},
+    {de:'dialektisch',cn:'辩证的',alt:'',pos:'adj',type:'形容词',phonetic:'[dialɛktɪʃ]',article:'',plural:'',scene:'🔄',ex_de:'Das ist ein <mark>dialektisches</mark> Argument.',ex_cn:'这是辩证论据。'},
+    {de:'Romantik',cn:'浪漫主义',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ʁoˈmantɪk]',article:'die',plural:'—',scene:'🌹',ex_de:'Goethe gehört zur <mark>Romantik</mark>.',ex_cn:'歌德属于浪漫主义。'},
+    {de:'Ästhetik',cn:'美学',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ɛsˈteːtɪk]',article:'die',plural:'—',scene:'🎨',ex_de:'<mark>Ästhetik</mark> behandelt Schönheit.',ex_cn:'美学研究美的问题。'},
+    {de:'Widerspruch',cn:'矛盾；反对',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ˈviːdɐˌʃpʁʊx]',article:'der',plural:'Widersprüche',scene:'⚡',ex_de:'Das ist ein <mark>Widerspruch</mark>.',ex_cn:'这是个矛盾。'},
+    {de:'Wahrheit',cn:'真理；真相',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈvaːɐ̯haɪ̯t]',article:'die',plural:'Wahrheiten',scene:'💎',ex_de:'Die <mark>Wahrheit</mark> ist komplex.',ex_cn:'真相是复杂的。'},
+    {de:'subjektiv',cn:'主观的',alt:'',pos:'adj',type:'形容词',phonetic:'[zʊpjɛkˈtiːf]',article:'',plural:'',scene:'👤',ex_de:'Das ist sehr <mark>subjektiv</mark>.',ex_cn:'这非常主观。'},
+    {de:'objektiv',cn:'客观的',alt:'',pos:'adj',type:'形容词',phonetic:'[ɔpjɛkˈtiːf]',article:'',plural:'',scene:'🔭',ex_de:'Urteile <mark>objektiv</mark>!',ex_cn:'客观评判！'},
+    {de:'kritisieren',cn:'批评；批判',alt:'',pos:'v',type:'动词',phonetic:'[kʁitiˈziːʁən]',article:'',plural:'',scene:'📝',ex_de:'Man darf die Regierung <mark>kritisieren</mark>.',ex_cn:'可以批评政府。'},
+    {de:'begründen',cn:'论证；建立根基',alt:'',pos:'v',type:'动词',phonetic:'[bəˈɡʁʏndn̩]',article:'',plural:'',scene:'🏗️',ex_de:'Bitte <mark>begründen</mark> Sie Ihre Aussage.',ex_cn:'请论证您的陈述。'},
+    {de:'überzeugend',cn:'有说服力的',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈyːbɐˌt͡sɔɪ̯ɡn̩t]',article:'',plural:'',scene:'✨',ex_de:'Das Argument ist <mark>überzeugend</mark>.',ex_cn:'论据很有说服力。'},
+  ]},
+  {id:'y4d3',year:4,icon:'🌐',name:'外交国际',color:'#3a86ff',words:[
+    {de:'Außenpolitik',cn:'外交政策',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈaʊ̯sn̩poliˌtɪk]',article:'die',plural:'—',scene:'🗺️',ex_de:'<mark>Außenpolitik</mark> ist wichtig.',ex_cn:'外交政策很重要。'},
+    {de:'Diplomatie',cn:'外交',alt:'',pos:'n',type:'名词 (die)',phonetic:'[diplomaˈtiː]',article:'die',plural:'—',scene:'🤝',ex_de:'<mark>Diplomatie</mark> ist besser als Krieg.',ex_cn:'外交比战争好。'},
+    {de:'Botschaft',cn:'大使馆；信息',alt:'',pos:'n',type:'名词 (die)',phonetic:'[ˈboːtʃaft]',article:'die',plural:'Botschaften',scene:'🏛️',ex_de:'Ich muss zur <mark>Botschaft</mark>.',ex_cn:'我必须去大使馆。'},
+    {de:'Vertrag',cn:'条约；合同',alt:'',pos:'n',type:'名词 (der)',phonetic:'[fɛɐ̯ˈtʁaːk]',article:'der',plural:'Verträge',scene:'📜',ex_de:'Sie unterzeichnen einen <mark>Vertrag</mark>.',ex_cn:'他们签署条约。'},
+    {de:'Kooperation',cn:'合作；协作',alt:'',pos:'n',type:'名词 (die)',phonetic:'[koopɛʁaˈt͡si̯oːn]',article:'die',plural:'—',scene:'🤝',ex_de:'Internationale <mark>Kooperation</mark> ist nötig.',ex_cn:'国际合作是必要的。'},
+    {de:'Sanktion',cn:'制裁；批准',alt:'',pos:'n',type:'名词 (die)',phonetic:'[zaŋkˈt͡si̯oːn]',article:'die',plural:'Sanktionen',scene:'🚫',ex_de:'Die EU verhängt <mark>Sanktionen</mark>.',ex_cn:'欧盟实施制裁。'},
+    {de:'Flüchtling',cn:'难民',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ˈflʏçtlɪŋ]',article:'der',plural:'Flüchtlinge',scene:'🏕️',ex_de:'Viele <mark>Flüchtlinge</mark> suchen Schutz.',ex_cn:'许多难民寻求庇护。'},
+    {de:'Menschenrecht',cn:'人权',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ˈmɛnʃn̩ˌʁɛçt]',article:'das',plural:'Menschenrechte',scene:'🕊️',ex_de:'<mark>Menschenrechte</mark> sind universell.',ex_cn:'人权是普世的。'},
+    {de:'bilateral',cn:'双边的',alt:'',pos:'adj',type:'形容词',phonetic:'[bilatəˈʁaːl]',article:'',plural:'',scene:'🤝',ex_de:'Ein <mark>bilaterales</mark> Abkommen.',ex_cn:'一项双边协议。'},
+    {de:'Souveränität',cn:'主权',alt:'',pos:'n',type:'名词 (die)',phonetic:'[zuvɛʁɛniˈtɛːt]',article:'die',plural:'—',scene:'👑',ex_de:'Die <mark>Souveränität</mark> ist geschützt.',ex_cn:'主权受到保护。'},
+    {de:'verhandeln',cn:'谈判；交涉',alt:'',pos:'v',type:'动词',phonetic:'[fɛɐ̯ˈhandl̩n]',article:'',plural:'',scene:'💼',ex_de:'Die Parteien <mark>verhandeln</mark>.',ex_cn:'各方在谈判。'},
+    {de:'Gipfel',cn:'峰会；顶峰',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ˈɡɪpfl̩]',article:'der',plural:'Gipfel',scene:'⛰️',ex_de:'Beim G7-<mark>Gipfel</mark> treffen sich Staatschefs.',ex_cn:'G7峰会上国家领导人相聚。'},
+    {de:'Bündnis',cn:'联盟；同盟',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ˈbʏntnɪs]',article:'das',plural:'Bündnisse',scene:'🤝',ex_de:'Das <mark>Bündnis</mark> ist stark.',ex_cn:'联盟很强大。'},
+    {de:'Konflikt',cn:'冲突；矛盾',alt:'',pos:'n',type:'名词 (der)',phonetic:'[kɔnˈflɪkt]',article:'der',plural:'Konflikte',scene:'⚔️',ex_de:'Der <mark>Konflikt</mark> eskaliert.',ex_cn:'冲突在升级。'},
+    {de:'Frieden',cn:'和平',alt:'',pos:'n',type:'名词 (der)',phonetic:'[ˈfʁiːdn̩]',article:'der',plural:'—',scene:'🕊️',ex_de:'Wir wollen <mark>Frieden</mark>.',ex_cn:'我们要和平。'},
+    {de:'Abkommen',cn:'协议；协定',alt:'',pos:'n',type:'名词 (das)',phonetic:'[ˈapˌkɔmən]',article:'das',plural:'Abkommen',scene:'📋',ex_de:'Das <mark>Abkommen</mark> ist wichtig.',ex_cn:'这项协议很重要。'},
+    {de:'Asyl',cn:'政治庇护',alt:'',pos:'n',type:'名词 (das)',phonetic:'[aˈzyːl]',article:'das',plural:'—',scene:'🏠',ex_de:'Er beantragt <mark>Asyl</mark>.',ex_cn:'他申请庇护。'},
+    {de:'multilateral',cn:'多边的',alt:'',pos:'adj',type:'形容词',phonetic:'[mʊltilatəˈʁaːl]',article:'',plural:'',scene:'🌐',ex_de:'<mark>Multilaterale</mark> Gespräche sind nötig.',ex_cn:'多边谈判是必要的。'},
+    {de:'internatonal',cn:'国际的',alt:'',pos:'adj',type:'形容词',phonetic:'[ɪntɐnatsi̯oˈnaːl]',article:'',plural:'',scene:'✈️',ex_de:'Das ist ein <mark>internationales</mark> Problem.',ex_cn:'这是国际性问题。'},
+    {de:'Zusammenarbeit',cn:'合作；协作',alt:'',pos:'n',type:'名词 (die)',phonetic:'[t͡suˈzamənˌaʁbaɪ̯t]',article:'die',plural:'—',scene:'🤝',ex_de:'Gute <mark>Zusammenarbeit</mark> ist wichtig.',ex_cn:'良好合作很重要。'},
+  ]},
+  {id:'y4d4',year:4,icon:'✍️',name:'高级写作',color:'#f4a623',words:[
+    {de:'dennoch',cn:'尽管如此；然而',alt:'',pos:'conj',type:'连词',phonetic:'[ˈdɛnɔx]',article:'',plural:'',scene:'🔄',ex_de:'Es regnete, <mark>dennoch</mark> gingen wir.',ex_cn:'尽管下雨，我们还是去了。'},
+    {de:'infolgedessen',cn:'因此；由此',alt:'所以',pos:'conj',type:'连词',phonetic:'[ˈɪnfɔlɡədɛsn̩]',article:'',plural:'',scene:'➡️',ex_de:'<mark>Infolgedessen</mark> trat er zurück.',ex_cn:'因此他辞职了。'},
+    {de:'darüber hinaus',cn:'除此之外；此外',alt:'',pos:'adv',type:'副词短语',phonetic:'[daˈʁyːbɐ hɪˈnaʊ̯s]',article:'',plural:'',scene:'➕',ex_de:'<mark>Darüber hinaus</mark> gibt es Probleme.',ex_cn:'除此之外还有问题。'},
+    {de:'im Gegensatz dazu',cn:'与此相反',alt:'相比之下',pos:'adv',type:'副词短语',phonetic:'[ɪm ˈɡeːɡn̩ˌzats daˈt͡suː]',article:'',plural:'',scene:'↔️',ex_de:'<mark>Im Gegensatz dazu</mark> bevorzugt er Tee.',ex_cn:'与此相反，他更喜欢茶。'},
+    {de:'einerseits',cn:'一方面',alt:'',pos:'adv',type:'副词',phonetic:'[ˈaɪ̯nɐˌzaɪ̯ts]',article:'',plural:'',scene:'🤲',ex_de:'<mark>Einerseits</mark> ist es gut.',ex_cn:'一方面这是好的。'},
+    {de:'andererseits',cn:'另一方面',alt:'',pos:'adv',type:'副词',phonetic:'[ˈandɐɐˌzaɪ̯ts]',article:'',plural:'',scene:'🤲',ex_de:'<mark>Andererseits</mark> ist es teuer.',ex_cn:'另一方面它很贵。'},
+    {de:'überdies',cn:'此外；而且',alt:'',pos:'adv',type:'副词',phonetic:'[ˈyːbɐˌdiːs]',article:'',plural:'',scene:'➕',ex_de:'Er ist klug und <mark>überdies</mark> fleißig.',ex_cn:'他聪明而且勤奋。'},
+    {de:'gewissermaßen',cn:'在某种程度上',alt:'',pos:'adv',type:'副词',phonetic:'[ɡəˈvɪsɐˌmaːsn̩]',article:'',plural:'',scene:'〰️',ex_de:'Er ist <mark>gewissermaßen</mark> ein Experte.',ex_cn:'他在某种程度上是专家。'},
+    {de:'schlüssig',cn:'有说服力的',alt:'合乎逻辑',pos:'adj',type:'形容词',phonetic:'[ˈʃlʏsɪç]',article:'',plural:'',scene:'✅',ex_de:'Das Argument ist <mark>schlüssig</mark>.',ex_cn:'论点有说服力。'},
+    {de:'angemessen',cn:'适当的；合适',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈanɡəˌmɛsn̩]',article:'',plural:'',scene:'⚖️',ex_de:'Das ist <mark>angemessen</mark>.',ex_cn:'这是适当的。'},
+    {de:'Formulierung',cn:'措辞；表述',alt:'',pos:'n',type:'名词 (die)',phonetic:'[fɔʁmuˈliːʁʊŋ]',article:'die',plural:'Formulierungen',scene:'✏️',ex_de:'Diese <mark>Formulierung</mark> ist präzise.',ex_cn:'这种措辞很精确。'},
+    {de:'veranschaulichen',cn:'说明；阐明',alt:'',pos:'v',type:'动词',phonetic:'[fɛɐ̯ˈanʃaʊ̯lɪçn̩]',article:'',plural:'',scene:'🎨',ex_de:'Ein Beispiel <mark>veranschaulicht</mark> das.',ex_cn:'一个例子来说明这一点。'},
+    {de:'hervorheben',cn:'强调；突出',alt:'',pos:'v',type:'动词',phonetic:'[hɛɐ̯ˈfoːɐ̯ˌheːbn̩]',article:'',plural:'',scene:'⭐',ex_de:'Ich möchte <mark>hervorheben</mark>…',ex_cn:'我想强调……'},
+    {de:'zusammenfassen',cn:'总结；概括',alt:'',pos:'v',type:'动词',phonetic:'[t͡suˈzamənˌfasn̩]',article:'',plural:'',scene:'📋',ex_de:'Lassen Sie mich <mark>zusammenfassen</mark>.',ex_cn:'让我来总结一下。'},
+    {de:'ausführlich',cn:'详细的；详尽',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈaʊ̯sfyːɐ̯lɪç]',article:'',plural:'',scene:'📄',ex_de:'Bitte beschreiben Sie das <mark>ausführlich</mark>.',ex_cn:'请详细描述一下。'},
+    {de:'präzise',cn:'精确的；准确',alt:'',pos:'adj',type:'形容词',phonetic:'[pʁeˈt͡siːzə]',article:'',plural:'',scene:'🎯',ex_de:'Sei bitte <mark>präzise</mark>!',ex_cn:'请精确一点！'},
+    {de:'stichhaltig',cn:'站得住脚的；充分',alt:'',pos:'adj',type:'形容词',phonetic:'[ˈʃtɪçhaltɪç]',article:'',plural:'',scene:'🏋️',ex_de:'Das ist ein <mark>stichhaltiges</mark> Argument.',ex_cn:'这是个充分的论据。'},
+    {de:'folglich',cn:'因此；所以',alt:'',pos:'conj',type:'连词',phonetic:'[ˈfɔlklɪç]',article:'',plural:'',scene:'⏭️',ex_de:'<mark>Folglich</mark> müssen wir handeln.',ex_cn:'因此我们必须行动。'},
+    {de:'hingegen',cn:'相反；反而',alt:'',pos:'conj',type:'连词',phonetic:'[ˈhɪnˌɡeːɡn̩]',article:'',plural:'',scene:'↩️',ex_de:'Er ist fleißig, sie <mark>hingegen</mark> nicht.',ex_cn:'他很勤奋，她则不然。'},
+    {de:'demnach',cn:'因此；据此',alt:'',pos:'adv',type:'副词',phonetic:'[ˈdeːmˌnax]',article:'',plural:'',scene:'➡️',ex_de:'<mark>Demnach</mark> hat er recht.',ex_cn:'因此他是对的。'},
+  ]},
+];
+
+const ALL_WORDS=[];
+DECKS.forEach(d=>d.words.forEach(w=>ALL_WORDS.push({...w,deckId:d.id,year:d.year})));
+
+// STATE
+let mastery={},todayCount=0,xp=0,streak=1,listFilter='all';
+let studyDeckId=null,studyQueue=[],studyIdx=0,studyMode='flash';
+let fcFlipped=false,sessionGood=0,sessionTotal=0,combo=0,maxCombo=0,sessionXP=0;
+let qzAnswered=false;
+
+const DAILY_GOAL=20;
+const ACHIEVEMENTS=[
+  {id:'first',icon:'🌱',name:'初学乍练',cond:()=>Object.keys(mastery).length>=1},
+  {id:'ten',icon:'⭐',name:'十词达人',cond:()=>masteredCount()>=10},
+  {id:'fifty',icon:'🌟',name:'五十词王',cond:()=>masteredCount()>=50},
+  {id:'hundred',icon:'💯',name:'百词斩手',cond:()=>masteredCount()>=100},
+  {id:'streak3',icon:'🔥',name:'三连打卡',cond:()=>streak>=3},
+  {id:'streak7',icon:'🏆',name:'七日不断',cond:()=>streak>=7},
+  {id:'xp100',icon:'⚡',name:'百XP勇士',cond:()=>xp>=100},
+  {id:'perfect',icon:'🎯',name:'完美闪卡',cond:()=>sessionGood>=10&&sessionGood===sessionTotal},
+];
+
+function masteredCount(){return Object.values(mastery).filter(m=>m.c>=3).length;}
+
+function initState(){
+  try{
+    const m=localStorage.getItem('dv3_m');if(m)mastery=JSON.parse(m);
+    const td=localStorage.getItem('dv3_td');
+    const tdd=localStorage.getItem('dv3_tdd');
+    const now=new Date().toDateString();
+    if(tdd===now&&td)todayCount=parseInt(td)||0;
+    else{todayCount=0;localStorage.setItem('dv3_tdd',now);}
+    const x=localStorage.getItem('dv3_xp');if(x)xp=parseInt(x)||0;
+    const s=localStorage.getItem('dv3_s');if(s)streak=parseInt(s)||1;
+  }catch(e){}
+}
+function save(){
+  try{
+    localStorage.setItem('dv3_m',JSON.stringify(mastery));
+    localStorage.setItem('dv3_td',todayCount);
+    localStorage.setItem('dv3_xp',xp);
+    localStorage.setItem('dv3_s',streak);
+  }catch(e){}
+}
+
+// SCREENS
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  ['home','list','stats'].forEach(n=>{
+    document.getElementById('nav-'+n)?.classList.toggle('active',n===name);
+  });
+  if(name==='home')renderHome();
+  if(name==='list')renderList();
+  if(name==='stats')renderStats();
+}
+
+// HOME
+function renderHome(){
+  const h=new Date().getHours();
+  document.getElementById('home-greeting').textContent=
+    h<12?'早上好 👋':h<18?'下午好 👋':'晚上好 👋';
+  // Ring
+  const pct=Math.min(1,todayCount/DAILY_GOAL);
+  const circ=220;
+  document.getElementById('ring-fill').style.strokeDashoffset=circ-(circ*pct);
+  document.getElementById('ring-num').textContent=Math.round(pct*100)+'%';
+  document.getElementById('daily-done').textContent=todayCount;
+  document.getElementById('daily-h3').textContent=
+    todayCount>=DAILY_GOAL?'🎉 今日目标完成！':'开始今日学习';
+  document.getElementById('start-today-btn').textContent=
+    todayCount>=DAILY_GOAL?'复习':'开始';
+  // Stats
+  document.getElementById('s-streak').textContent=streak;
+  document.getElementById('s-xp').textContent=xp;
+  document.getElementById('s-total').textContent=ALL_WORDS.length;
+  document.getElementById('s-mastered').textContent=masteredCount();
+  // Plan
+  const pl=document.getElementById('plan-list');
+  pl.innerHTML=DECKS.map(d=>{
+    const dm=d.words.filter(w=>mastery[w.de]&&mastery[w.de].c>=3).length;
+    const dp=Math.round(dm/d.words.length*100);
+    const isNew=dm===0;const isDone=dm===d.words.length;
+    return `<div class="plan-item" onclick="startDeck('${d.id}')">
+      <div class="plan-icon" style="background:${d.color}22">${d.icon}</div>
+      <div class="plan-info">
+        <div class="plan-name">${d.name}</div>
+        <div class="plan-meta">第${d.year}年级 · ${d.words.length}词 · ${dp}%掌握</div>
+      </div>
+      <div class="plan-badge ${isDone?'badge-done':isNew?'badge-new':'badge-review'}">
+        ${isDone?'✅已完成':isNew?'🆕新单元':'📖复习'}
+      </div>
+    </div>`;
+  }).join('');
+  // Achievements
+  const ar=document.getElementById('achv-row');
+  ar.innerHTML=ACHIEVEMENTS.map(a=>{
+    const unlocked=a.cond();
+    return `<div class="achv-card${unlocked?'':' locked'}" title="${unlocked?'已解锁':'未解锁'}">
+      <div class="achv-icon">${a.icon}</div>
+      <div class="achv-name">${a.name}</div>
+    </div>`;
+  }).join('');
+}
+
+// STUDY
+function startTodayPlan(){startDeck(DECKS[0].id);}
+function startDeck(deckId){
+  const deck=DECKS.find(d=>d.id===deckId);if(!deck)return;
+  studyDeckId=deckId;
+  studyQueue=deck.words.map((_,i)=>i);
+  studyIdx=0;fcFlipped=false;
+  sessionGood=0;sessionTotal=0;combo=0;maxCombo=0;sessionXP=0;
+  document.getElementById('complete-overlay').classList.remove('show');
+  document.getElementById('study-deck-name')&&(document.querySelector('.study-nav .icon-btn+div').textContent=deck.name);
+  switchMode('flash');
+  showScreen('study');
+  document.getElementById('bottom-nav').style.display='none';
+  renderStudyCard();
+}
+function exitStudy(){
+  document.getElementById('bottom-nav').style.display='flex';
+  showScreen('home');
+}
+
+function switchMode(m){
+  studyMode=m;
+  fcFlipped=false;qzAnswered=false;
+  document.getElementById('tab-flash').classList.toggle('active',m==='flash');
+  document.getElementById('tab-quiz').classList.toggle('active',m==='quiz');
+  document.getElementById('mode-flashcard').classList.toggle('hidden',m!=='flash');
+  document.getElementById('mode-quiz').style.display=m==='quiz'?'flex':'none';
+  if(m==='quiz')renderStudyCard();
+  else renderStudyCard();
+}
+
+function renderStudyCard(){
+  if(studyIdx>=studyQueue.length){showComplete();return;}
+  const deck=DECKS.find(d=>d.id===studyDeckId);
+  const w=deck.words[studyQueue[studyIdx]];
+  // Progress
+  const pct=studyIdx/studyQueue.length*100;
+  document.getElementById('study-prog').style.width=pct+'%';
+  document.getElementById('prog-left').textContent=`${studyIdx}/${studyQueue.length}`;
+  document.getElementById('prog-combo').textContent=combo>1?`🔥×${combo}`:'';
+  document.getElementById('prog-xp').textContent=`+${sessionXP}XP`;
+  if(studyMode==='flash') renderFlash(w);
+  else renderQuiz(w,deck);
+}
+
+function renderFlash(w){
+  fcFlipped=false;
+  document.getElementById('card-3d')&&document.getElementById('card-3d').classList.remove('flipped');
+  const artEl=document.getElementById('fc-art');
+  artEl.textContent=w.article||'—';
+  artEl.className='art-tag '+(w.article?'art-'+w.article:'art-none');
+  artEl.style.display=w.article?'inline-block':'none';
+  document.getElementById('fc-scene').textContent=w.scene||'📖';
+  document.getElementById('fc-type').textContent=w.type;
+  document.getElementById('fc-word').textContent=w.de;
+  document.getElementById('fc-phonetic').textContent=w.phonetic;
+  document.getElementById('fc-plural').textContent=w.plural?'复数: '+w.plural:'';
+  document.getElementById('fc-cn').textContent=w.cn;
+  document.getElementById('fc-alt').textContent=w.alt||'';
+  document.getElementById('fc-ex-de').innerHTML=w.ex_de||'';
+  document.getElementById('fc-ex-cn').textContent=w.ex_cn||'';
+  // Reset reveal
+  document.getElementById('fc-reveal').classList.remove('show');
+  document.getElementById('fc-rates').style.opacity='0';
+  document.getElementById('fc-rates').style.pointerEvents='none';
+  document.getElementById('fc-hint').style.display='flex';
+}
+
+function fcFlip(){
+  if(fcFlipped)return;
+  fcFlipped=true;
+  document.getElementById('fc-reveal').classList.add('show');
+  document.getElementById('fc-rates').style.opacity='1';
+  document.getElementById('fc-rates').style.pointerEvents='auto';
+  document.getElementById('fc-hint').style.display='none';
+}
+
+function fcRate(r){
+  if(!fcFlipped)return;
+  const deck=DECKS.find(d=>d.id===studyDeckId);
+  const w=deck.words[studyQueue[studyIdx]];
+  const key=w.de;
+  if(!mastery[key])mastery[key]={c:0};
+  sessionTotal++;
+  if(r==='good'){
+    mastery[key].c=Math.min(3,mastery[key].c+1);
+    todayCount++;sessionGood++;combo++;
+    if(combo>maxCombo)maxCombo=combo;
+    const xpGain=10+(combo>2?5:0);
+    xp+=xpGain;sessionXP+=xpGain;
+    showXP('+'+xpGain+' XP');
+    if(combo>=3)showCombo(combo);
+  }else if(r==='hard'){
+    combo=0;
+    const pos=Math.min(studyIdx+3,studyQueue.length);
+    studyQueue.splice(pos,0,studyQueue[studyIdx]);
+  }else{
+    mastery[key].c=Math.max(0,mastery[key].c-1);
+    combo=0;
+    studyQueue.push(studyQueue[studyIdx]);
+    studyQueue.push(studyQueue[studyIdx]);
+  }
+  save();studyIdx++;
+  setTimeout(()=>renderStudyCard(),200);
+}
+
+function renderQuiz(w,deck){
+  qzAnswered=false;
+  document.getElementById('qz-scene').textContent=w.scene||'📖';
+  const artEl=document.getElementById('qz-art');
+  artEl.textContent=w.article||'—';
+  artEl.className='art-tag '+(w.article?'art-'+w.article:'art-none');
+  artEl.style.display=w.article?'inline-block':'none';
+  document.getElementById('qz-word').textContent=w.de;
+  document.getElementById('qz-phonetic').textContent=w.phonetic;
+  // Build options (1 correct + 3 wrong)
+  const correct=w.cn;
+  const pool=ALL_WORDS.filter(x=>x.cn!==correct&&x.deckId!==studyDeckId);
+  const wrong=[];const used=new Set([correct]);
+  while(wrong.length<3&&pool.length>0){
+    const r=pool[Math.floor(Math.random()*pool.length)];
+    if(!used.has(r.cn)){used.add(r.cn);wrong.push(r.cn);}
+  }
+  const opts=[correct,...wrong].sort(()=>Math.random()-0.5);
+  const letters=['A','B','C','D'];
+  document.getElementById('qz-options').innerHTML=opts.map((o,i)=>
+    `<div class="quiz-option" onclick="qzAnswer(this,'${o.replace(/'/g,"\\'")}','${correct.replace(/'/g,"\\'")}')">
+      <div class="opt-letter">${letters[i]}</div><span>${o}</span>
+    </div>`
+  ).join('');
+  document.getElementById('qz-feedback').classList.remove('show');
+}
+
+function qzAnswer(el,chosen,correct){
+  if(qzAnswered)return;
+  qzAnswered=true;
+  const isCorrect=chosen===correct;
+  const deck=DECKS.find(d=>d.id===studyDeckId);
+  const w=deck.words[studyQueue[studyIdx]];
+  // Mark options
+  document.querySelectorAll('.quiz-option').forEach(opt=>{
+    const txt=opt.querySelector('span').textContent;
+    if(txt===correct)opt.classList.add('correct');
+    else if(txt===chosen&&!isCorrect)opt.classList.add('wrong');
+    opt.onclick=null;
+  });
+  sessionTotal++;
+  if(isCorrect){
+    if(!mastery[w.de])mastery[w.de]={c:0};
+    mastery[w.de].c=Math.min(3,mastery[w.de].c+1);
+    todayCount++;sessionGood++;combo++;
+    if(combo>maxCombo)maxCombo=combo;
+    const xpGain=15+(combo>2?5:0);
+    xp+=xpGain;sessionXP+=xpGain;
+    showXP('+'+xpGain+' XP');
+    if(combo>=3)showCombo(combo);
+  }else{
+    if(!mastery[w.de])mastery[w.de]={c:0};
+    mastery[w.de].c=Math.max(0,mastery[w.de].c-1);
+    combo=0;
+  }
+  save();
+  // Feedback
+  document.getElementById('qf-icon').textContent=isCorrect?'✅':'❌';
+  document.getElementById('qf-msg').textContent=isCorrect?'回答正确！🎉':'回答错误';
+  document.getElementById('qf-msg').style.color=isCorrect?'var(--primary)':'var(--red)';
+  document.getElementById('qf-ex').innerHTML=w.ex_de+'<br><span style="color:var(--text3);font-size:11px;font-style:normal">'+w.ex_cn+'</span>';
+  document.getElementById('qz-feedback').classList.add('show');
+}
+
+function qzNext(){
+  studyIdx++;
+  renderStudyCard();
+}
+
+function showComplete(){
+  const acc=sessionTotal>0?Math.round(sessionGood/sessionTotal*100):0;
+  document.getElementById('co-v1').textContent=sessionGood;
+  document.getElementById('co-v2').textContent=acc+'%';
+  document.getElementById('co-v3').textContent=maxCombo;
+  document.getElementById('co-xp-num').textContent=sessionXP;
+  const deck=DECKS.find(d=>d.id===studyDeckId);
+  document.getElementById('co-sub').textContent=`完成「${deck.name}」· ${deck.words.length}个词`;
+  document.getElementById('complete-overlay').classList.add('show');
+}
+function restartStudy(){startDeck(studyDeckId);}
+
+// LIST
+function renderList(){
+  const q=document.getElementById('search-in').value.toLowerCase().trim();
+  let words=ALL_WORDS.filter(w=>{
+    if(q&&!w.de.toLowerCase().includes(q)&&!w.cn.includes(q))return false;
+    const mc=mastery[w.de]?mastery[w.de].c:0;
+    if(listFilter==='y1'&&w.year!==1)return false;
+    if(listFilter==='y2'&&w.year!==2)return false;
+    if(listFilter==='y3'&&w.year!==3)return false;
+    if(listFilter==='y4'&&w.year!==4)return false;
+    if(listFilter==='mastered'&&mc<3)return false;
+    if(listFilter==='new'&&mc>0)return false;
+    if(listFilter==='n'&&w.pos!=='n')return false;
+    if(listFilter==='v'&&w.pos!=='v')return false;
+    if(listFilter==='adj'&&w.pos!=='adj')return false;
+    return true;
+  });
+  document.getElementById('list-count').textContent=`共 ${words.length} 词`;
+  const el=document.getElementById('word-list-el');
+  if(!words.length){el.innerHTML='<div style="text-align:center;color:#999;padding:60px;font-size:14px">暂无符合条件的词汇</div>';return;}
+  // Group by deck
+  const byDeck={};
+  words.forEach(w=>{
+    if(!byDeck[w.deckId])byDeck[w.deckId]=[];
+    byDeck[w.deckId].push(w);
+  });
+  let html='';
+  Object.keys(byDeck).forEach(deckId=>{
+    const deck=DECKS.find(d=>d.id===deckId);
+    html+=`<div class="wl-group-header">${deck.icon} ${deck.name}</div>`;
+    byDeck[deckId].forEach(w=>{
+      const mc=mastery[w.de]?mastery[w.de].c:0;
+      const artSpan=w.article?`<span style="color:${w.article==='der'?'#1d4ed8':w.article==='die'?'#9d174d':'#92400e'};font-weight:700;font-size:12px">${w.article} </span>`:'';
+      const stars='⭐'.repeat(mc)+'☆'.repeat(3-mc);
+      html+=`<div class="wl-item">
+        <div class="wl-scene">${w.scene||'📖'}</div>
+        <div class="wl-info">
+          <div class="wl-de">${artSpan}${w.de}</div>
+          <div class="wl-cn">${w.cn}${w.alt?' · '+w.alt:''}</div>
+          <div class="wl-type">${w.type}</div>
+        </div>
+        <div class="wl-stars" style="font-size:13px">${stars}</div>
+      </div>`;
+    });
+  });
+  el.innerHTML=html;
+}
+function setChip(el,f){
+  listFilter=f;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');renderList();
+}
+
+// STATS
+function renderStats(){
+  const mc=masteredCount();
+  document.getElementById('sc-mastered').textContent=mc;
+  document.getElementById('sc-mastered-sub').textContent=`共 ${ALL_WORDS.length} 词`;
+  document.getElementById('sc-xp').textContent=xp;
+  const lv=Math.floor(xp/100)+1;
+  document.getElementById('sc-xp-sub').textContent=`Lv.${lv} ${['','初学者','进阶者','熟练者','专家','大师'][Math.min(lv,5)]}`;
+  document.getElementById('sc-streak').textContent=streak;
+  document.getElementById('sc-today').textContent=todayCount;
+  // Heatmap
+  const hm=document.getElementById('hm-grid');
+  const data=Array.from({length:28},()=>Math.floor(Math.random()*5));
+  hm.innerHTML=data.map(l=>`<div class="hm-cell${l?' h'+Math.min(l,4):''}"></div>`).join('');
+  // Year bars
+  const yb=document.getElementById('yr-prog');
+  yb.innerHTML=[1,2,3,4].map(y=>{
+    const yd=DECKS.filter(d=>d.year===y);
+    const tw=yd.reduce((a,d)=>a+d.words.length,0);
+    const mw=yd.reduce((a,d)=>a+d.words.filter(w=>mastery[w.de]&&mastery[w.de].c>=3).length,0);
+    const pct=tw?Math.round(mw/tw*100):0;
+    const colors=['#2d6a4f','#3a86ff','#e63946','#f4a623'];
+    return `<div class="prog-row">
+      <div class="prog-label"><span>第 ${y} 年级</span><span>${mw}/${tw} · ${pct}%</span></div>
+      <div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${colors[y-1]}"></div></div>
+    </div>`;
+  }).join('');
+  // Achievements
+  document.getElementById('stats-achv').innerHTML=ACHIEVEMENTS.map(a=>{
+    const u=a.cond();
+    return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:${u?'var(--primary-lt)':'var(--bg2)'};border-radius:10px;flex:1;min-width:120px">
+      <span style="font-size:20px">${a.icon}</span>
+      <span style="font-size:12px;font-weight:600;color:${u?'var(--primary)':'var(--text3)'}">${a.name}</span>
+    </div>`;
+  }).join('');
+}
+
+// EFFECTS
+function showXP(msg){
+  const el=document.getElementById('xp-float');
+  el.textContent=msg;el.className='xp-float show';
+  setTimeout(()=>{el.classList.add('hide');setTimeout(()=>el.className='xp-float',300);},800);
+}
+function showCombo(n){
+  const el=document.getElementById('combo-pop');
+  el.textContent=`🔥 连击 ×${n}`;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),1500);
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+// Keyboard
+document.addEventListener('keydown',e=>{
+  const ss=document.querySelector('.screen.active');
+  if(!ss||ss.id!=='screen-study')return;
+  if(studyMode==='flash'){
+    if(e.code==='Space'){e.preventDefault();fcFlip();}
+    if(e.key==='1')fcRate('again');
+    if(e.key==='2')fcRate('hard');
+    if(e.key==='3')fcRate('good');
+  }
+});
+
+// INIT — splash then home
+initState();
+setTimeout(()=>{
+  document.getElementById('screen-splash').classList.remove('active');
+  showScreen('home');
+  document.getElementById('bottom-nav').style.display='flex';
+},1600);
+</script>
+</body>
+</html>
